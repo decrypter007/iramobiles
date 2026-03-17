@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>IRA Mobiles</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+:root,[data-theme="light"]{
+  --bg:#F5F4F0;--s1:#FFFFFF;--s2:#F0EEE9;--s3:#E8E6E0;
+  --border:#E2E0DA;--border2:#CCCAC4;
+  --text:#111111;--text2:#555550;--text3:#99998A;
+  --green:#009950;--greenBg:#E6F5EE;--greenText:#007A3E;
+  --blue:#0066CC;--blueBg:#E6F0FF;--blueText:#0052A3;
+  --amber:#B07000;--amberBg:#FFF3DC;--amberText:#8A5600;
+  --purple:#7700CC;--purpleBg:#F2E8FF;--purpleText:#5C00A3;
+  --red:#CC2200;--redBg:#FFECE8;
+  --grid:rgba(0,0,0,.04);--shadow:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
+}
+[data-theme="dark"]{
+  --bg:#000000;--s1:#0A0A0A;--s2:#111111;--s3:#1A1A1A;
+  --border:#222222;--border2:#333333;
+  --text:#FFFFFF;--text2:#AAAAAA;--text3:#555555;
+  --green:#00FF87;--greenBg:#00FF8712;--greenText:#00FF87;
+  --blue:#00AAFF;--blueBg:#00AAFF12;--blueText:#00AAFF;
+  --amber:#FFB000;--amberBg:#FFB00012;--amberText:#FFB000;
+  --purple:#CC44FF;--purpleBg:#CC44FF12;--purpleText:#CC44FF;
+  --red:#FF3322;--redBg:#FF332212;
+  --grid:rgba(255,255,255,.025);--shadow:none;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s;}
+::-webkit-scrollbar{display:none;}
+a{text-decoration:none;color:inherit;}
+button{cursor:pointer;font-family:'Space Grotesk',sans-serif;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:44px 44px;}
+.wrap{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0 18px 80px;}
+
+/* NAV */
+.top-nav{width:100%;max-width:480px;display:flex;justify-content:space-between;align-items:center;padding:22px 0 0;}
+.brand-mark{display:flex;align-items:center;gap:9px;}
+.brand-icon{width:36px;height:36px;border-radius:10px;background:var(--green);display:flex;align-items:center;justify-content:center;}
+.brand-icon svg{width:20px;height:20px;}
+.brand-name{font-size:17px;font-weight:800;letter-spacing:-.4px;}
+.brand-name em{font-style:normal;color:var(--green);}
+.theme-btn{
+  width:50px;height:28px;border-radius:14px;border:1.5px solid var(--border2);
+  background:var(--s3);position:relative;transition:background .2s,border-color .2s;
+  display:flex;align-items:center;
+}
+[data-theme="dark"] .theme-btn{background:var(--s3);border-color:var(--border2);}
+.theme-knob{
+  position:absolute;width:22px;height:22px;border-radius:50%;
+  background:var(--s1);border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;line-height:1;transition:left .2s;
+  box-shadow:0 1px 4px rgba(0,0,0,.15);
+}
+[data-theme="light"] .theme-knob{left:2px;}
+[data-theme="dark"]  .theme-knob{left:24px;}
+
+/* HERO */
+.hero{width:100%;max-width:480px;padding:32px 0 24px;text-align:center;}
+.version-pill{display:inline-block;font-size:10px;font-weight:700;color:var(--text3);border:1px solid var(--border2);padding:3px 11px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;}
+.headline{font-size:30px;font-weight:900;line-height:1.1;letter-spacing:-1px;color:var(--text);margin-bottom:9px;}
+.headline em{font-style:normal;color:var(--green);}
+.sub-text{font-size:13px;color:var(--text3);line-height:1.65;max-width:300px;margin:0 auto;}
+
+/* STATS */
+.stats-row{width:100%;max-width:480px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:24px 0 26px;}
+.stat-card{background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:13px 8px;text-align:center;box-shadow:var(--shadow);}
+.stat-n{font-family:'Space Mono',monospace;font-size:19px;font-weight:700;color:var(--text);display:block;line-height:1;}
+.stat-l{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-top:4px;display:block;}
+
+/* DIVIDER */
+.divider{width:100%;max-width:480px;display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.div-line{flex:1;height:1px;background:var(--border);}
+.div-txt{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;}
+
+/* CARDS */
+.apps{width:100%;max-width:480px;display:flex;flex-direction:column;gap:11px;}
+.app-card{
+  position:relative;overflow:hidden;
+  border-radius:16px;border:1px solid var(--border);
+  background:var(--s1);padding:19px 20px 17px;
+  display:block;transition:border-color .18s,box-shadow .18s,transform .1s;
+  box-shadow:var(--shadow);
+}
+.app-card:active{transform:scale(.985);}
+/* colour variants */
+.app-card.c-green{border-color:color-mix(in srgb,var(--green) 25%,transparent);}
+.app-card.c-green:hover{border-color:color-mix(in srgb,var(--green) 55%,transparent);box-shadow:var(--shadow),0 0 0 1px color-mix(in srgb,var(--green) 20%,transparent);}
+.app-card.c-blue{border-color:color-mix(in srgb,var(--blue) 25%,transparent);}
+.app-card.c-blue:hover{border-color:color-mix(in srgb,var(--blue) 55%,transparent);}
+.app-card.c-amber{border-color:color-mix(in srgb,var(--amber) 30%,transparent);}
+.app-card.c-amber:hover{border-color:color-mix(in srgb,var(--amber) 60%,transparent);}
+.app-card.c-purple{border-color:color-mix(in srgb,var(--purple) 25%,transparent);}
+.app-card.c-purple:hover{border-color:color-mix(in srgb,var(--purple) 55%,transparent);}
+/* stripe */
+.c-stripe{position:absolute;top:0;left:0;right:0;height:2px;opacity:.7;}
+.c-stripe.green{background:linear-gradient(90deg,transparent,var(--green),transparent);}
+.c-stripe.blue{background:linear-gradient(90deg,transparent,var(--blue),transparent);}
+.c-stripe.amber{background:linear-gradient(90deg,transparent,var(--amber),transparent);}
+.c-stripe.purple{background:linear-gradient(90deg,transparent,var(--purple),transparent);}
+/* card internals */
+.app-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:13px;}
+.app-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;}
+.app-icon.green{background:var(--greenBg);}
+.app-icon.blue{background:var(--blueBg);}
+.app-icon.amber{background:var(--amberBg);}
+.app-icon.purple{background:var(--purpleBg);}
+.app-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.4px;}
+.app-badge.green{background:var(--greenBg);color:var(--greenText);}
+.app-badge.blue{background:var(--blueBg);color:var(--blueText);}
+.app-badge.amber{background:var(--amberBg);color:var(--amberText);}
+.app-badge.purple{background:var(--purpleBg);color:var(--purpleText);}
+.app-title{font-size:17px;font-weight:800;letter-spacing:-.3px;color:var(--text);margin-bottom:4px;}
+.app-desc{font-size:12px;color:var(--text3);line-height:1.55;margin-bottom:14px;}
+.app-meta{display:flex;align-items:center;justify-content:space-between;}
+.app-tags{display:flex;gap:5px;flex-wrap:wrap;}
+.tag{font-size:10px;font-weight:700;color:var(--text3);background:var(--s2);border:1px solid var(--border);padding:2px 7px;border-radius:5px;}
+.app-arrow{font-size:15px;color:var(--text3);transition:color .15s,transform .15s;}
+.app-card:hover .app-arrow{transform:translateX(3px);}
+.c-green:hover .app-arrow{color:var(--green);}
+.c-blue:hover .app-arrow{color:var(--blue);}
+.c-amber:hover .app-arrow{color:var(--amber);}
+.c-purple:hover .app-arrow{color:var(--purple);}
+
+/* FOOTER */
+.footer{margin-top:auto;padding-top:36px;text-align:center;width:100%;max-width:480px;}
+.footer-brand{font-size:12px;font-weight:700;color:var(--text3);margin-bottom:8px;}
+.footer-brand em{font-style:normal;color:var(--green);}
+.footer-links{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;}
+.footer-links a{font-size:11px;color:var(--text3);font-weight:600;letter-spacing:.3px;transition:color .15s;}
+.footer-links a:hover{color:var(--text);}
+
+/* ANIMATIONS */
+.fu{opacity:0;transform:translateY(16px);animation:fu .45s ease forwards;}
+.d1{animation-delay:.06s}.d2{animation-delay:.13s}.d3{animation-delay:.20s}
+.d4{animation-delay:.27s}.d5{animation-delay:.34s}.d6{animation-delay:.41s}
+@keyframes fu{to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="top-nav fu d1">
+    <div class="brand-mark">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="2" width="14" height="20" rx="2"/>
+          <line x1="12" y1="18" x2="12.01" y2="18"/>
+        </svg>
+      </div>
+      <div class="brand-name">IRA <em>Mobiles</em></div>
+    </div>
+    <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle theme">
+      <div class="theme-knob" id="knob">☀️</div>
+    </button>
+  </nav>
+
+  <header class="hero fu d2">
+    <div class="version-pill">Internal Tools · v3.0</div>
+    <h1 class="headline">Your shop.<br/><em>Fully wired.</em></h1>
+    <p class="sub-text">All your tools in one place — guard IDs, repairs, and customer orders.</p>
+  </header>
+
+  <div class="stats-row fu d2">
+    <div class="stat-card">
+      <span class="stat-n" id="hp-models">—</span>
+      <span class="stat-l">Guard Models</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-n" id="hp-jobs">—</span>
+      <span class="stat-l">Active Jobs</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-n" id="hp-orders">—</span>
+      <span class="stat-l">Pending Orders</span>
+    </div>
+  </div>
+
+  <div class="divider fu d3">
+    <div class="div-line"></div>
+    <div class="div-txt">Tools</div>
+    <div class="div-line"></div>
+  </div>
+
+  <div class="apps">
+
+    <a href="guard-hub.html" class="app-card c-green fu d3">
+      <div class="c-stripe green"></div>
+      <div class="app-top">
+        <div class="app-icon green">🛡️</div>
+        <span class="app-badge green">Guard DB</span>
+      </div>
+      <div class="app-title">Guard Hub</div>
+      <div class="app-desc">Search any phone model and instantly get its screen protector ID and group number. Syncs from your Google Sheet.</div>
+      <div class="app-meta">
+        <div class="app-tags"><span class="tag">Search</span><span class="tag">Filter</span><span class="tag">Sheet Sync</span></div>
+        <span class="app-arrow">→</span>
+      </div>
+    </a>
+
+    <a href="service-tracker.html" class="app-card c-blue fu d4">
+      <div class="c-stripe blue"></div>
+      <div class="app-top">
+        <div class="app-icon blue">🛠️</div>
+        <span class="app-badge blue">Live Sync</span>
+      </div>
+      <div class="app-title">Service Tracker</div>
+      <div class="app-desc">Log repair jobs, track issue status, manage outside shops, print receipts. Syncs across devices in real time.</div>
+      <div class="app-meta">
+        <div class="app-tags"><span class="tag">Jobs</span><span class="tag">Shops</span><span class="tag">Reports</span><span class="tag">Cloud</span></div>
+        <span class="app-arrow">→</span>
+      </div>
+    </a>
+
+    <a href="orders.html" class="app-card c-amber fu d5">
+      <div class="c-stripe amber"></div>
+      <div class="app-top">
+        <div class="app-icon amber">📦</div>
+        <span class="app-badge amber">Orders</span>
+      </div>
+      <div class="app-title">Order Tracker</div>
+      <div class="app-desc">Track customer orders for phone cases, accessories and more. Set expected dates, mark delivery status, never miss an order.</div>
+      <div class="app-meta">
+        <div class="app-tags"><span class="tag">Cases</span><span class="tag">Accessories</span><span class="tag">Status</span></div>
+        <span class="app-arrow">→</span>
+      </div>
+    </a>
+
+  </div>
+
+  <footer class="footer fu d6">
+    <div class="footer-brand"><em>IRA</em> Mobiles · Kozhikode</div>
+    <div class="footer-links">
+      <a href="https://www.instagram.com/ira_mobiles/" target="_blank">Instagram</a>
+      <a href="guard-hub.html">Guard Hub</a>
+      <a href="service-tracker.html">Service Tracker</a>
+      <a href="orders.html">Orders</a>
+    </div>
+  </footer>
+
+</div>
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  localStorage.setItem('ira_theme',t);
+  const k=document.getElementById('knob');
+  if(k) k.textContent=t==='dark'?'🌙':'☀️';
+}
+function toggleTheme(){
+  applyTheme(document.documentElement.getAttribute('data-theme')==='light'?'dark':'light');
+}
+applyTheme(localStorage.getItem('ira_theme')||'light');
+
+function loadStats(){
+  try{
+    const gdb=JSON.parse(localStorage.getItem('guardDB')||'[]');
+    const jobs=JSON.parse(localStorage.getItem('svc_jobs')||'[]');
+    const orders=JSON.parse(localStorage.getItem('ira_orders')||'[]');
+    const aj=jobs.filter(j=>{const s=j.issues?.map(i=>i.status)||[];return!s.every(x=>x==='Cancelled'||x==='Picked Up');}).length;
+    const po=orders.filter(o=>o.status!=='Delivered'&&o.status!=='Cancelled').length;
+    document.getElementById('hp-models').textContent=gdb.length||'—';
+    document.getElementById('hp-jobs').textContent=aj||'0';
+    document.getElementById('hp-orders').textContent=po||'0';
+  }catch(e){}
+}
+loadStats();
+</script>
+</body>
+</html>
