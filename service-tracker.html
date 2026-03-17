@@ -1,0 +1,2214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<link rel="manifest" href="manifest.json"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="IRA Mobiles"/>
+<meta name="theme-color" content="#009950"/>
+<title>🛠️ Service Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg:      #000000;
+    --s1:      #080808;
+    --s2:      #0E0E0E;
+    --s3:      #161616;
+    --border:  #1E1E1E;
+    --border2: #2A2A2A;
+    --text:    #FFFFFF;
+    --text2:   #888888;
+    --text3:   #444444;
+    --green:   #00FF87;
+    --greenD:  #00D870;
+    --red:     #FF2244;
+    --amber:   #FFB000;
+    --blue:    #00AAFF;
+    --sky:     #00CCFF;
+    --purple:  #CC00FF;
+    --teal:    #00FFCC;
+    --font:    'Space Grotesk', sans-serif;
+    --mono:    'Space Mono', 'JetBrains Mono', monospace;
+    --chip-received-bg:#1A0E00; --chip-inrepair-bg:#00081A; --chip-done-bg:#001A0E;
+    --chip-pickedup-bg:#0E0E0E; --chip-cancelled-bg:#1A0008;
+  }
+  [data-theme="light"] {
+    --bg:      #F0F0F0;
+    --s1:      #FFFFFF;
+    --s2:      #F0F0F0;
+    --s3:      #E0E0E0;
+    --border:  #CCCCCC;
+    --border2: #BBBBBB;
+    --text:    #111111;
+    --text2:   #444444;
+    --text3:   #888888;
+    --green:   #007A40;
+    --greenD:  #006030;
+    --red:     #CC0022;
+    --amber:   #AA7000;
+    --blue:    #0055AA;
+    --sky:     #0077BB;
+    --purple:  #880099;
+    --teal:    #007755;
+    --chip-received-bg:#FFF3CC; --chip-inrepair-bg:#CCE8FF; --chip-done-bg:#CCFFE8;
+    --chip-pickedup-bg:#E0E0E0; --chip-cancelled-bg:#FFD6DD;
+  }
+  [data-theme="light"] input[type=date]{color-scheme:light;}
+  [data-theme="light"] input[type=date]::-webkit-calendar-picker-indicator{filter:none;}
+  [data-theme="light"] .lock-badge{background:#E5F9FF;border-color:#007A9944;}
+  [data-theme="light"] .shop-due-wrap{background:#FFF8E1;border-color:#C9800044;}
+  [data-theme="light"] .return-banner{background:#F7EEFF;border-color:#8B00CC44;}
+  [data-theme="light"] .fab{box-shadow:0 4px 20px #007A4044;}
+  [data-theme="light"] .toast{box-shadow:0 4px 20px rgba(0,0,0,.15);}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:var(--bg);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased;height:100%;}
+  input,button,select,textarea{font-family:var(--font);}
+  input[type=date]{color-scheme:dark;}
+  input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.4);}
+  ::-webkit-scrollbar{width:0;height:0;}
+  button{cursor:pointer;}
+  button:active{transform:scale(.97);}
+  .fade-in{animation:fadeIn .18s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  .slide-up{animation:slideUp .22s cubic-bezier(.22,.68,0,1.2);}
+  @keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .pulse{animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+  #app{min-height:100vh;}
+  /* ── HEADER ── */
+  .header{background:var(--s1);border-bottom:1px solid var(--border);padding:14px 16px;position:sticky;top:0;z-index:50;}
+  .header-row{display:flex;justify-content:space-between;align-items:center;}
+  .header-title{font-size:19px;font-weight:800;color:var(--text);letter-spacing:-.4px;}
+  .header-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+  .header-btns{display:flex;gap:6px;}
+  .icon-btn{border-radius:8px;padding:7px 10px;font-size:13px;font-weight:700;border:1px solid;background:transparent;}
+  /* ── TABS ── */
+  .tabs{display:flex;background:var(--s1);border-bottom:1px solid var(--border);overflow-x:auto;padding:0 10px;scrollbar-width:none;}
+  .tab{white-space:nowrap;padding:10px 12px;font-size:12px;font-weight:700;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text3);display:flex;align-items:center;gap:5px;transition:color .12s,border-color .12s;font-family:var(--font);}
+  .tab.active{color:var(--text);}
+  .tab-badge{font-size:9px;font-weight:800;padding:1px 5px;border-radius:9px;min-width:16px;text-align:center;}
+  /* ── JOB LIST ── */
+  .job-list{padding:10px 12px 0;}
+  .job-card{background:var(--s1);border-radius:12px;border:1px solid var(--border);margin-bottom:8px;overflow:hidden;transition:opacity .15s;}
+  .job-card.cancelled{opacity:.5;}
+  .status-band{height:3px;}
+  .card-top{padding:11px 13px 10px;cursor:pointer;user-select:none;}
+  .card-expanded{border-top:1px solid var(--border);padding:11px 13px;}
+  .empty-state{text-align:center;padding:60px 20px;color:var(--text3);}
+  /* ── CHIP ── */
+  .chip{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.3px;}
+  .chip-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+  /* ── TRACK ── */
+  .track{display:flex;align-items:center;padding:7px 0 2px;}
+  .track-seg{display:flex;align-items:center;flex:1;}
+  .track-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;border:1.5px solid;}
+  .track-line{flex:1;height:1px;background:var(--border);}
+  /* ── ISSUE CARD ── */
+  .issue-card{border-radius:9px;border:1px solid var(--border);border-left-width:3px;padding:10px 11px;margin-bottom:8px;}
+  /* ── TOTALS ── */
+  .totals-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
+  .total-cell{text-align:center;}
+  .total-label{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
+  .total-val{font-family:var(--mono);font-size:13px;font-weight:700;}
+  /* ── BUTTONS ── */
+  .btn{padding:10px 16px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid;font-family:var(--font);transition:opacity .12s;}
+  .btn:disabled{opacity:.35;cursor:default;}
+  .btn.sm{padding:5px 12px;font-size:11px;}
+  .btn.full{width:100%;}
+  .btn.primary{background:var(--text);color:var(--bg);border-color:var(--text);}
+  .btn.outline{background:transparent;color:var(--text);border-color:var(--border2);}
+  .btn.ghost{background:transparent;color:var(--text2);border-color:transparent;}
+  .btn.danger{background:#1A0008;color:var(--red);border-color:#FF174444;}
+  .btn.green-v{background:#001A08;color:var(--green);border-color:#00E67644;}
+  .btn.amber-v{background:#1A1000;color:var(--amber);border-color:#FFB30044;}
+  .btn.blue-v{background:#001030;color:var(--blue);border-color:#2979FF44;}
+  .btn.teal-v{background:#001A1A;color:var(--teal);border-color:#00E5FF44;}
+  .btn.purple-v{background:#0F0022;color:var(--purple);border-color:#D500F944;}
+  /* ── MODAL / SHEET ── */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center;z-index:200;}
+  .overlay.center{align-items:center;padding:20px;}
+  .sheet{background:var(--s1);border-radius:18px 18px 0 0;border:1px solid var(--border);border-bottom:none;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;}
+  .sheet.full{max-height:97vh;}
+  .dialog{background:var(--s1);border-radius:16px;border:1px solid var(--border);padding:22px;width:100%;max-width:320px;}
+  .sheet-head{display:flex;justify-content:space-between;align-items:flex-start;padding:18px 18px 12px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--s1);z-index:5;}
+  .sheet-title{font-size:17px;font-weight:800;}
+  .close-btn{background:var(--s3);border:none;color:var(--text2);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;}
+  /* ── FULL SCREEN PAGE ── */
+  .page{position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;flex-direction:column;font-family:var(--font);}
+  .page-head{background:var(--s1);border-bottom:1px solid var(--border);padding:16px 18px;flex-shrink:0;}
+  .page-body{flex:1;overflow-y:auto;padding:14px 18px 80px;}
+  .back-btn{background:var(--s3);border:1px solid var(--border);color:var(--text2);border-radius:8px;padding:7px 12px;font-size:13px;font-weight:700;}
+  /* ── FORM ── */
+  .lbl{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.9px;margin-bottom:5px;}
+  .field-wrap{margin-bottom:13px;}
+  .field-input{width:100%;padding:10px 12px;border-radius:8px;background:var(--s2);border:1px solid var(--border2);color:var(--text);font-size:14px;outline:none;font-family:var(--font);}
+  .field-input:focus{border-color:var(--text3);}
+  .field-input.error{border-color:var(--red);}
+  .field-input.highlight{border-color:var(--purple);}
+  .field-err{color:var(--red);font-size:11px;margin-top:3px;}
+  .prefix-wrap{position:relative;}
+  .prefix-sym{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:13px;font-family:var(--mono);pointer-events:none;}
+  .prefix-input{padding-left:26px!important;}
+  .divider{border-top:1px solid var(--border);margin:10px 0;}
+  .divider-lbl{display:flex;align-items:center;gap:10px;margin:14px 0 10px;}
+  .divider-lbl-text{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;}
+  .divider-lbl-line{flex:1;height:1px;background:var(--border);}
+  /* ── SEC BOX ── */
+  .sec{background:var(--s2);border-radius:12px;border:1px solid var(--border);padding:13px 15px;margin-bottom:11px;}
+  .sec-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;}
+  .sec-sub{font-size:11px;color:var(--text3);margin-bottom:10px;}
+  /* ── LOCK ── */
+  .lock-badge{background:#001A1A;border:1px solid #00E5FF33;border-radius:8px;padding:9px 11px;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+  /* ── FAB ── */
+  .fab{position:fixed;bottom:24px;right:18px;width:54px;height:54px;border-radius:50%;background:#00FF87;border:none;color:#000;font-size:26px;font-weight:900;cursor:pointer;box-shadow:0 4px 20px #00FF8755;display:flex;align-items:center;justify-content:center;z-index:100;}
+  /* ── SEARCH ── */
+  .search-input{width:100%;padding:10px 12px 10px 38px;border-radius:8px;background:var(--s2);border:1px solid var(--border2);color:var(--text);font-size:14px;outline:none;}
+  .search-wrap{position:relative;}
+  .search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none;}
+  /* ── TOAST ── */
+  .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;z-index:1000;white-space:nowrap;animation:fadeIn .2s ease;box-shadow:0 4px 20px rgba(0,0,0,.6);}
+  /* ── REPORTS TABS ── */
+  .r-tab{white-space:nowrap;padding:6px 14px;font-size:12px;font-weight:700;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-family:var(--font);}
+  .r-tab.active{background:var(--text);color:var(--bg);border-color:var(--text);}
+  /* ── MONO ── */
+  .mono{font-family:var(--mono);}
+  /* ── RETURN CUSTOMER BANNER ── */
+  .return-banner{margin-top:7px;background:#0F0022;border:1px solid #D500F944;border-radius:8px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;}
+  /* ── SHOP DUE EDITOR ── */
+  .shop-due-wrap{background:#1A1000;border-radius:7px;padding:8px 10px;margin-top:7px;border:1px solid #FFB30033;}
+  /* ── STATUS PICKER ── */
+  .status-pick-btn{padding:12px 14px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid;cursor:pointer;text-align:left;font-family:var(--font);display:flex;align-items:center;gap:10px;margin-bottom:7px;width:100%;}
+  [data-theme="light"] .btn.danger{background:#FFE8ED;color:var(--red);border-color:#D4002644;}
+  [data-theme="light"] .btn.green-v{background:#E8FFF4;color:var(--green);border-color:#00A65144;}
+  [data-theme="light"] .btn.amber-v{background:#FFF8E1;color:var(--amber);border-color:#C9800044;}
+  [data-theme="light"] .btn.blue-v{background:#E8F0FF;color:var(--blue);border-color:#1A5FCC44;}
+  [data-theme="light"] .btn.teal-v{background:#E5F9FF;color:var(--teal);border-color:#007A9944;}
+  [data-theme="light"] .btn.purple-v{background:#F7EEFF;color:var(--purple);border-color:#8B00CC44;}
+  /* ── MAIN SEARCH BAR ── */
+  .main-search-wrap{padding:8px 12px 4px;background:var(--bg);}
+  .main-search-inner{position:relative;}
+  .main-search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none;color:var(--text3);}
+  .main-search-clear{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);font-size:18px;padding:0 4px;line-height:1;cursor:pointer;}
+  .main-search-input{width:100%;padding:9px 32px 9px 36px;border-radius:8px;background:var(--s2);border:1px solid var(--border2);color:var(--text);font-size:14px;outline:none;font-family:var(--font);}
+  .main-search-input:focus{border-color:var(--text3);}
+  /* ── SYNC STATUS DOT ── */
+  .sync-dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0;}
+  /* ── PRINT RECEIPT ── */
+  @media print {
+    body * { visibility: hidden; }
+    #print-receipt, #print-receipt * { visibility: visible; }
+    #print-receipt { position: fixed; inset: 0; background: white; color: black;
+      font-family: 'Courier New', monospace; padding: 24px; font-size: 12px; line-height: 1.6; }
+  }
+  @media(min-width:520px){
+    .sheet,.page{max-width:520px;margin:auto;}
+    .page{left:50%;transform:translateX(-50%);right:auto;width:100%;}
+    .fab{right:calc(50% - 260px + 18px);}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;color:var(--text3);">
+    <div style="text-align:center;"><div style="font-size:32px;margin-bottom:10px;">🛠️</div><div>Loading 🛠️ Neon Workshop…</div></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  CENTRALIZED DATABASE  (localStorage)
+// ═══════════════════════════════════════════════════════════
+const DB = {
+  _k: { jobs:'svc_jobs', shops:'svc_shops', ctr:'svc_ctr', theme:'svc_theme', fb:'svc_firebase', sp:'svc_showprofit', ls:'svc_lastsaved' },
+  load() {
+    try {
+      return {
+        jobs:      JSON.parse(localStorage.getItem(this._k.jobs)  || '[]'),
+        shops:     JSON.parse(localStorage.getItem(this._k.shops) || '[]'),
+        ctr:       parseInt(localStorage.getItem(this._k.ctr) || '0') || 0,
+        theme:     localStorage.getItem(this._k.theme) || localStorage.getItem('ira_theme') || 'light',
+        firebaseConfig: JSON.parse(localStorage.getItem(this._k.fb) || 'null'),
+        showProfit: (localStorage.getItem(this._k.sp)||'0') !== '0',
+        lastSaved: parseInt(localStorage.getItem(this._k.ls) || '0') || 0,
+      };
+    } catch { return {jobs:[],shops:[],ctr:0,theme:'dark',firebaseConfig:null,lastSaved:0}; }
+  },
+  saveJobs(jobs)      { localStorage.setItem(this._k.jobs,  JSON.stringify(jobs));  },
+  saveShops(shops)    { localStorage.setItem(this._k.shops, JSON.stringify(shops)); },
+  saveCtr(n)          { localStorage.setItem(this._k.ctr,   String(n));             },
+  saveTheme(t)        { localStorage.setItem(this._k.theme, t);                     },
+  saveFirebase(cfg)   { localStorage.setItem(this._k.fb, JSON.stringify(cfg));      },
+  saveShowProfit(v)   { localStorage.setItem(this._k.sp, v?'1':'0');                },
+  saveLastSaved(ts)   { localStorage.setItem(this._k.ls, String(ts));               },
+  exportJSON(jobs,shops) {
+    return JSON.stringify({version:9,exportedAt:new Date().toISOString(),jobs,shops},null,2);
+  },
+  importJSON(text) {
+    const p = JSON.parse(text);
+    if(!Array.isArray(p.jobs)) throw new Error('Invalid');
+    return { jobs: p.jobs, shops: p.shops||[] };
+  }
+};
+
+// ═══════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════
+let STATE = { jobs:[], shops:[], ctr:0, filter:'All', expanded:null, saving:false,
+  screen:'home', modal:null, toast:null, search:'', theme:'light',
+  firebaseConfig:null, syncStatus:'off', showProfit:false, _sbEditUnlocked:false };
+
+function setState(patch) {
+  Object.assign(STATE, typeof patch==='function' ? patch(STATE) : patch);
+  render();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  THEME
+// ═══════════════════════════════════════════════════════════
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  DB.saveTheme(t);
+  localStorage.setItem('ira_theme', t); // keep in sync with index/guard-hub/orders
+}
+function toggleTheme() {
+  const t = STATE.theme==='dark'?'light':'dark';
+  STATE.theme=t; applyTheme(t); render();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SUPABASE SYNC ENGINE
+//  Uses Supabase REST API (PostgREST) — no SDK required.
+//  Stores the entire app state as a single row in a table:
+//    CREATE TABLE svctracker (
+//      id TEXT PRIMARY KEY DEFAULT 'main',
+//      payload JSONB,
+//      updated_at TIMESTAMPTZ DEFAULT now()
+//    );
+//  RLS: enable, then add policy: allow all for anon role (or use service key).
+// ═══════════════════════════════════════════════════════════
+const SUPABASE = {
+  _cfg: null,               // { url, anonKey }
+  _headers() {
+    return {
+      'Content-Type':  'application/json',
+      'apikey':        this._cfg.anonKey,
+      'Authorization': `Bearer ${this._cfg.anonKey}`,
+      'Prefer':        'resolution=merge-duplicates',
+    };
+  },
+  _tableUrl() {
+    return `${this._cfg.url}/rest/v1/svctracker`;
+  },
+  configure(cfg) {
+    this._cfg = cfg;
+    DB.saveFirebase(cfg);   // reuse same localStorage key
+  },
+  clear() {
+    this._cfg = null;
+    DB.saveFirebase(null);
+  },
+  async push(jobs, shops, ctr) {
+    if(!this._cfg) return false;
+    const payload = { jobs, shops, ctr, updatedAt: new Date().toISOString() };
+    const res = await fetch(this._tableUrl(), {
+      method: 'POST',
+      headers: this._headers(),
+      body: JSON.stringify({ id:'main', payload }),
+    });
+    return res.ok;
+  },
+  async pull() {
+    if(!this._cfg) return null;
+    const res = await fetch(`${this._tableUrl()}?id=eq.main&select=payload,updated_at`, {
+      method: 'GET',
+      headers: this._headers(),
+    });
+    if(!res.ok) return null;
+    const rows = await res.json();
+    if(!rows || !rows.length) return null;
+    return { ...rows[0].payload, updatedAt: rows[0].updated_at };
+  },
+  // ── Per-job merge helper ───────────────────────────────────
+  _mergeJobs(localJobs, remoteJobs) {
+    const localMap  = Object.fromEntries(localJobs.map(j=>[j.id, j]));
+    const remoteMap = Object.fromEntries(remoteJobs.map(j=>[j.id, j]));
+    const allIds    = new Set([...Object.keys(localMap), ...Object.keys(remoteMap)]);
+    const merged    = [];
+    allIds.forEach(id => {
+      const loc = localMap[id];
+      const rem = remoteMap[id];
+      if(!loc) { merged.push(rem);  return; }
+      if(!rem) { merged.push(loc); return; }
+      const lt = loc.updatedAt ? new Date(loc.updatedAt).getTime() : 0;
+      const rt = rem.updatedAt ? new Date(rem.updatedAt).getTime() : 0;
+      merged.push(rt > lt ? rem : loc);
+    });
+    merged.sort((a,b)=> new Date(b.createdAt||0) - new Date(a.createdAt||0));
+    return merged;
+  },
+  async pullOnly() {
+    if(!this._cfg) return;
+    try {
+      const remote = await this.pull();
+      if(!remote || !Array.isArray(remote.jobs)) return;
+      const merged = this._mergeJobs(STATE.jobs, remote.jobs);
+      // Deep-compare: only proceed if something actually changed
+      const jobsChanged = JSON.stringify(merged) !== JSON.stringify(STATE.jobs);
+      const shopsChanged = remote.shops && JSON.stringify(remote.shops) !== JSON.stringify(STATE.shops) && remote.shops.length >= STATE.shops.length;
+      if(!jobsChanged && !shopsChanged) return; // nothing new — silent exit, no render
+      if(jobsChanged) {
+        STATE.jobs = merged;
+        STATE.ctr  = Math.max(STATE.ctr, remote.ctr || 0);
+        DB.saveJobs(STATE.jobs); DB.saveCtr(STATE.ctr);
+      }
+      if(shopsChanged) {
+        STATE.shops = remote.shops;
+        DB.saveShops(STATE.shops);
+      }
+      STATE.syncStatus = 'ok';
+      // Only re-render if no modal is open (avoids interrupting user mid-action)
+      if(!STATE.modal) patchRender();
+    } catch(e) {}
+  },
+  async syncNow() {
+    if(!this._cfg) return;
+    STATE.syncStatus = 'syncing';
+    // No render() here — silently sync without flashing the UI
+    try {
+      const remote = await this.pull();
+      if(remote && Array.isArray(remote.jobs)) {
+        const merged = this._mergeJobs(STATE.jobs, remote.jobs);
+        const jobsChanged = JSON.stringify(merged) !== JSON.stringify(STATE.jobs);
+        const shopsChanged = remote.shops && JSON.stringify(remote.shops) !== JSON.stringify(STATE.shops) && remote.shops.length >= STATE.shops.length;
+        if(jobsChanged) { STATE.jobs = merged; DB.saveJobs(STATE.jobs); }
+        if(shopsChanged){ STATE.shops = remote.shops; DB.saveShops(STATE.shops); }
+        STATE.ctr = Math.max(STATE.ctr, remote.ctr || 0);
+        DB.saveCtr(STATE.ctr);
+      }
+      STATE._lastSaved = Date.now();
+      DB.saveLastSaved(STATE._lastSaved);
+      const ok = await this.push(STATE.jobs, STATE.shops, STATE.ctr);
+      STATE.syncStatus = ok ? 'ok' : 'error';
+    } catch(e) {
+      STATE.syncStatus = 'error';
+    }
+    // Use patchRender (no DOM flash) unless a modal is open
+    if(!STATE.modal) patchRender(); else render();
+    setTimeout(()=>{
+      if(STATE.syncStatus !== 'syncing'){
+        STATE.syncStatus = STATE.firebaseConfig ? 'ok' : 'off';
+        updateSyncDot();
+      }
+    }, 3000);
+  }
+};
+
+// Auto-sync wrapper — called after every data mutation (push + pull)
+async function autoSync() {
+  if(STATE.firebaseConfig && SUPABASE._cfg) {
+    await SUPABASE.syncNow();
+  }
+}
+
+// Background poller — pulls every 3 seconds, no UI flash
+let _pollTimer = null;
+function startPoller() {
+  if(_pollTimer) clearInterval(_pollTimer);
+  _pollTimer = setInterval(async () => {
+    if(SUPABASE._cfg && !document.hidden) {
+      await SUPABASE.pullOnly();
+    }
+  }, 3000);
+}
+// Resume immediately when tab becomes visible again
+document.addEventListener('visibilitychange', () => {
+  if(!document.hidden && SUPABASE._cfg) {
+    SUPABASE.pullOnly();
+    startPoller();
+  }
+});
+
+// ── PATCH RENDER ─────────────────────────────────────────────
+// Updates only the job list + header sub-line in-place.
+// Zero DOM rebuild → zero blink during background polls.
+function patchRender() {
+  if(STATE.modal || STATE.screen !== 'home') { render(); return; }
+
+  // Patch header sub-line only
+  const syncColors = {off:'var(--text3)',syncing:'var(--amber)',ok:'var(--green)',error:'var(--red)'};
+  const syncTitles = {off:'Cloud sync off',syncing:'Syncing…',ok:'Synced ✓',error:'Sync error'};
+  const activeTotal = STATE.jobs.filter(j=>!['Picked Up','Cancelled'].includes(jobStatus(j))).length;
+  const subEl = document.querySelector('.header-sub');
+  if(subEl) {
+    subEl.innerHTML = `<span class="mono" style="font-weight:700;color:var(--green)">${activeTotal}</span> active &nbsp;·&nbsp; ${STATE.jobs.length} total`
+      + (STATE.saving ? ' <span style="color:var(--amber)"> · saving…</span>' : '')
+      + (STATE.syncStatus !== 'off' ? ` <span class="sync-dot" style="background:${syncColors[STATE.syncStatus]}" title="${syncTitles[STATE.syncStatus]}"></span>` : '');
+  }
+
+  // Rebuild filtered list
+  const sq = (STATE.search||'').toLowerCase().trim();
+  const {filter, expanded} = STATE;
+  let filtered = filter==='All' ? STATE.jobs
+    : filter==='Cancelled' ? STATE.jobs.filter(j=>jobStatus(j)==='Cancelled')
+    : STATE.jobs.filter(j=>jobStatus(j)===filter);
+  if(sq) {
+    filtered = filtered.filter(j =>
+      j.customerName.toLowerCase().includes(sq) ||
+      (j.mobile||'').includes(sq) ||
+      j.phoneModel.toLowerCase().includes(sq) ||
+      j.jobNo.includes(sq) ||
+      j.issues.some(i=>i.desc.toLowerCase().includes(sq))
+    );
+  }
+
+  const listEl = document.querySelector('.job-list');
+  if(!listEl) { render(); return; }
+
+  const newHtml = filtered.length === 0
+    ? `<div class="empty-state fade-in">
+        <div style="font-size:40px;margin-bottom:10px">${sq?'🔍':'📋'}</div>
+        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">${sq?`No results for "${esc(sq)}"` :'No jobs here'}</div>
+        <div style="font-size:13px">${sq?'Try a different search term':'Tap + to create a new job'}</div>
+      </div>`
+    : filtered.map(job => renderJobCard(job, expanded, STATE.shops, STATE.jobs)).join('');
+
+  // Only swap if content actually changed — avoids repaint when nothing changed
+  if(listEl.innerHTML !== newHtml) listEl.innerHTML = newHtml;
+}
+
+// Update just the sync dot color without touching anything else
+function updateSyncDot() {
+  const syncColors = {off:'var(--text3)',syncing:'var(--amber)',ok:'var(--green)',error:'var(--red)'};
+  const syncTitles = {off:'Cloud sync off',syncing:'Syncing…',ok:'Synced ✓',error:'Sync error'};
+  document.querySelectorAll('.sync-dot').forEach(d => {
+    d.style.background = syncColors[STATE.syncStatus]||'var(--text3)';
+    d.title = syncTitles[STATE.syncStatus]||'';
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CONSTANTS & UTILS
+// ═══════════════════════════════════════════════════════════
+const STATUS_CFG = {
+  'Received':  {dot:'#FFB300',bg:'#1A1200',text:'#FFB300'},
+  'In Repair': {dot:'#2979FF',bg:'#001233',text:'#2979FF'},
+  'Done':      {dot:'#00E676',bg:'#001A0A',text:'#00E676'},
+  'Picked Up': {dot:'#555',   bg:'#111',   text:'#666'},
+  'Cancelled': {dot:'#FF1744',bg:'#1A0005',text:'#FF1744'},
+};
+const FLOW = ['Received','In Repair','Done','Picked Up'];
+const CUR  = '₹';
+const TABS = ['All','Received','In Repair','Done','Picked Up','Cancelled'];
+const LOCK_ICONS = {none:'🔓',pin:'🔢',pattern:'⬛',fingerprint:'👆',face:'😊',other:'🔒'};
+
+const genId     = () => Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const normMob   = m  => (m||'').replace(/\D/g,'');
+const padNum    = n  => String(n).padStart(4,'0');
+const fmtDate   = iso => iso ? new Date(iso).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '';
+const esc       = s  => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+const fmt0      = n  => (n||0).toFixed(0);
+const fmt2      = n  => (n||0).toFixed(2);
+
+// ═══════════════════════════════════════════════════════════
+//  BUSINESS LOGIC
+// ═══════════════════════════════════════════════════════════
+function jobStatus(job) {
+  const s = job.issues.map(i=>i.status);
+  if(s.every(x=>x==='Cancelled'))                       return 'Cancelled';
+  if(s.every(x=>x==='Picked Up'||x==='Cancelled'))      return 'Picked Up';
+  if(s.some(x=>x==='In Repair'))                        return 'In Repair';
+  if(s.some(x=>x==='Done'))                             return 'Done';
+  return 'Received';
+}
+function calcTotals(job) {
+  let parts=0,charge=0,servicer=0,sTotal=0,sPaid=0;
+  job.issues.forEach(i=>{
+    if(i.status==='Cancelled') return;
+    if(i.partsCost!=null)       parts   +=+i.partsCost;
+    if(i.charge!=null)          charge  +=+i.charge;
+    if(i.servicerCharge!=null)  servicer+=+i.servicerCharge;
+    if(i.serviceType==='outside'){
+      if(i.shopTotal!=null) sTotal+=+i.shopTotal;
+      if(i.shopPaid!=null)  sPaid +=+i.shopPaid;
+    }
+  });
+  // profit = customer charge − parts cost − servicer charge
+  return {parts,charge,servicer,profit:charge-parts-servicer,sTotal,sPaid,sDue:sTotal-sPaid};
+}
+function shopBalance(shop,jobs) {
+  const ob=shop.openingBalance||0; let jc=0,jp=0;
+  jobs.forEach(j=>j.issues.forEach(i=>{
+    if(i.shopId===shop.id&&i.serviceType==='outside'&&i.status!=='Cancelled'){
+      if(i.shopTotal!=null)jc+=+i.shopTotal; if(i.shopPaid!=null)jp+=+i.shopPaid;
+    }
+  }));
+  const pmts=(shop.payments||[]).reduce((a,p)=>a+p.amount,0);
+  return {owed:ob+jc,paid:jp+pmts,balance:ob+jc-(jp+pmts),jobCharges:jc,jobPaid:jp,ob};
+}
+function buildCustomers(jobs) {
+  const m={};
+  jobs.forEach(j=>{
+    const k=normMob(j.mobile)||`_${j.customerName.toLowerCase()}`;
+    if(!m[k])m[k]={name:j.customerName,mobile:j.mobile||'',jobs:[]};
+    m[k].jobs.push(j);
+  });
+  return Object.values(m).sort((a,b)=>a.name.localeCompare(b.name));
+}
+function tabCount(jobs,tab) {
+  if(tab==='All'||tab==='Cancelled'||tab==='Picked Up') return 0;
+  return jobs.filter(j=>jobStatus(j)===tab).length;
+}
+function buildReports(jobs, dateFrom, dateTo) {
+  // Apply date range filter if provided
+  let filtered = jobs;
+  if(dateFrom) {
+    const from = new Date(dateFrom+'T00:00:00').getTime();
+    filtered = filtered.filter(j => new Date(j.jobDate||j.createdAt).getTime() >= from);
+  }
+  if(dateTo) {
+    const to = new Date(dateTo+'T23:59:59').getTime();
+    filtered = filtered.filter(j => new Date(j.jobDate||j.createdAt).getTime() <= to);
+  }
+  let totalParts=0,totalCharge=0,totalProfit=0,totalShopDue=0;
+  const byJob=filtered.filter(j=>jobStatus(j)!=='Cancelled').map(j=>{
+    const t=calcTotals(j);
+    totalParts+=t.parts; totalCharge+=t.charge; totalProfit+=t.profit; totalShopDue+=t.sDue;
+    return {...j,_t:t};
+  });
+  const allIssues=[];
+  filtered.forEach(j=>j.issues.forEach(i=>{
+    if(i.status==='Cancelled') return;
+    allIssues.push({jobNo:j.jobNo,customer:j.customerName,model:j.phoneModel,desc:i.desc,
+      parts:i.partsCost||0,charge:i.charge||0,servicer:i.servicerCharge||0,
+      profit:(i.charge||0)-(i.partsCost||0)-(i.servicerCharge||0),
+      type:i.serviceType,status:i.status});
+  }));
+  return {totalParts,totalCharge,totalProfit,totalShopDue,byJob,allIssues,jobCount:filtered.length};
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ACTIONS
+// ═══════════════════════════════════════════════════════════
+// When a job is saved/edited with outside issues, auto-stamp shopTotal
+// into the shop's job charges (shopTotal on the issue IS the charge record —
+// shopBalance() already reads it from issues, so no extra ledger entry needed).
+// BUT: if shopPaid > 0 at creation time, we auto-record that as a payment
+// in the shop's payment log so it appears in the ledger immediately.
+function autoAddShopPayments(job, shops) {
+  let changed = false;
+  const newShops = shops.map(shop => {
+    let newPmts = [...(shop.payments||[])];
+    job.issues.forEach(iss => {
+      if(iss.serviceType!=='outside' || iss.shopId!==shop.id) return;
+      if(!iss.shopPaid || iss.shopPaid<=0) return;
+      // Only add auto-payment if there isn't already one for this issue
+      const key = `auto_${job.id}_${iss.id}`;
+      if(newPmts.some(p=>p.id===key)) return;
+      newPmts = [{
+        id: key,
+        amount: +iss.shopPaid,
+        note: `Job #${job.jobNo} — ${iss.desc}`,
+        date: new Date().toISOString(),
+        auto: true,
+      }, ...newPmts];
+      changed = true;
+    });
+    return changed ? {...shop, payments: newPmts} : shop;
+  });
+  return {shops: newShops, changed};
+}
+
+function saveJob(form) {
+  const n = STATE.ctr+1;
+  STATE.ctr = n; DB.saveCtr(n);
+  const job = {
+    id:genId(), jobNo:padNum(n),
+    customerName:form.customerName.trim(), mobile:(form.mobile||'').trim(),
+    phoneModel:form.phoneModel.trim(), phoneLock:form.phoneLock||'',
+    lockType:form.lockType||'none',
+    jobDate:form.jobDate ? new Date(form.jobDate+'T09:00:00').toISOString() : new Date().toISOString(),
+    createdAt:new Date().toISOString(),
+    updatedAt:new Date().toISOString(),
+    notes: form.notes||'',
+    issues:form.issues.map(i=>({
+      id:i.id||genId(), desc:i.desc.trim(),
+      partsCost:i.partsCost!==''&&i.partsCost!=null?+i.partsCost:null,
+      charge:i.charge!==''&&i.charge!=null?+i.charge:null,
+      servicerCharge:i.servicerCharge!==''&&i.servicerCharge!=null?+i.servicerCharge:null,
+      status:'Received', serviceType:i.serviceType||'self',
+      shopId:i.serviceType==='outside'?i.shopId:null,
+      shopTotal:i.shopTotal!==''&&i.shopTotal!=null?+i.shopTotal:null,
+      shopPaid:i.shopPaid!==''&&i.shopPaid!=null?+i.shopPaid:0,
+    })),
+  };
+  const jobs=[job,...STATE.jobs];
+  STATE.jobs=jobs; DB.saveJobs(jobs);
+  // Auto-record any upfront shop payments in the ledger
+  const {shops: newShops, changed} = autoAddShopPayments(job, STATE.shops);
+  if(changed) { STATE.shops=newShops; DB.saveShops(newShops); }
+  const now=Date.now(); STATE._lastSaved=now; DB.saveLastSaved(now);
+  setState({modal:null});
+  showToast('✓ Job saved');
+  autoSync();
+}
+
+// Stamp updatedAt on a job whenever it's mutated — used by all actions below
+const stampJob = (j, jid) => j.id!==jid ? j : {...j, updatedAt: new Date().toISOString()};
+
+function advanceIssue(jid,iid) {
+  const jobs=STATE.jobs.map(j=>j.id!==jid?j:stampJob({...j,issues:j.issues.map(i=>{
+    if(i.id!==iid||i.status==='Cancelled') return i;
+    const x=FLOW.indexOf(i.status);
+    return x<FLOW.length-1?{...i,status:FLOW[x+1]}:i;
+  })},jid));
+  STATE.jobs=jobs; DB.saveJobs(jobs);
+  const now=Date.now(); STATE._lastSaved=now; DB.saveLastSaved(now);
+  setState({}); autoSync();
+}
+function setIssueSt(jid,iid,st) {
+  const jobs=STATE.jobs.map(j=>j.id!==jid?j:stampJob({...j,issues:j.issues.map(i=>i.id!==iid?i:{...i,status:st})},jid));
+  STATE.jobs=jobs; DB.saveJobs(jobs);
+  const now=Date.now(); STATE._lastSaved=now; DB.saveLastSaved(now);
+  setState({modal:null}); autoSync();
+}
+function setAllSt(jid,st) {
+  const jobs=STATE.jobs.map(j=>j.id!==jid?j:stampJob({...j,issues:j.issues.map(i=>i.status==='Cancelled'?i:{...i,status:st})},jid));
+  STATE.jobs=jobs; DB.saveJobs(jobs);
+  const now=Date.now(); STATE._lastSaved=now; DB.saveLastSaved(now);
+  setState({modal:null}); autoSync();
+}
+function cancelIssue(jid,iid) {
+  const jobs=STATE.jobs.map(j=>j.id!==jid?j:stampJob({...j,issues:j.issues.map(i=>i.id!==iid?i:{...i,status:'Cancelled'})},jid));
+  STATE.jobs=jobs; DB.saveJobs(jobs);
+  const now=Date.now(); STATE._lastSaved=now; DB.saveLastSaved(now);
+  setState({modal:null}); autoSync();
+}
+function cancelJob(jid) {
+  const jobs=STATE.jobs.map(j=>j.id!==jid?j:stampJob({...j,issues:j.issues.map(i=>i.status==='Picked Up'?i:{...i,status:'Cancelled'})},jid));
+  STATE.jobs=jobs; DB.saveJobs(jobs);
+  const now=Date.now(); STATE._lastSaved=now; DB.saveLastSaved(now);
+  setState({modal:null}); autoSync();
+}
+function deleteJob(jid) {
+  const jobs=STATE.jobs.filter(j=>j.id!==jid);
+  STATE.jobs=jobs; DB.saveJobs(jobs);
+  const now=Date.now(); STATE._lastSaved=now; DB.saveLastSaved(now);
+  setState({modal:null, expanded:null});
+  showToast('🗑 Job deleted');
+  autoSync();
+}
+function updateShopPay(jid,iid,paid) {
+  const jobs=STATE.jobs.map(j=>j.id!==jid?j:stampJob({...j,issues:j.issues.map(i=>i.id!==iid?i:{...i,shopPaid:+paid||0})},jid));
+  STATE.jobs=jobs; DB.saveJobs(jobs);
+  const now=Date.now(); STATE._lastSaved=now; DB.saveLastSaved(now);
+  setState({}); autoSync();
+}
+function saveShops(shops) {
+  STATE.shops=shops; DB.saveShops(shops); setState({}); autoSync();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════════════
+let _toastTimer=null;
+function showToast(msg) {
+  if(_toastTimer) clearTimeout(_toastTimer);
+  STATE.toast=msg; render();
+  _toastTimer=setTimeout(()=>{STATE.toast=null;render();},2200);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  TEMPLATES
+// ═══════════════════════════════════════════════════════════
+function chipHTML(status) {
+  const s=STATUS_CFG[status]||STATUS_CFG['Received'];
+  return `<span class="chip" style="background:${s.bg};color:${s.text}"><span class="chip-dot" style="background:${s.dot}"></span>${status}</span>`;
+}
+function trackHTML(status) {
+  const ci=FLOW.indexOf(status), can=status==='Cancelled';
+  const rc=STATUS_CFG[FLOW[Math.max(ci,0)]]?.dot||'#555';
+  return `<div class="track">${FLOW.map((s,i)=>`
+    <div class="track-seg">
+      <div class="track-dot" style="background:${can?'#1A1A1A':i<=ci?rc:'var(--s3)'};border-color:${can?'var(--border)':i<=ci?rc:'var(--border2)'};${!can&&i===ci?`box-shadow:0 0 0 3px ${rc}33`:''};"></div>
+      ${i<FLOW.length-1?`<div class="track-line" style="background:${can?'var(--border)':i<ci?rc:'var(--border)'}"></div>`:''}
+    </div>`).join('')}
+  </div>`;
+}
+function btnHTML(label,cls='btn primary',attr='') {
+  return `<button class="${cls}" ${attr}>${label}</button>`;
+}
+function fieldHTML({label,id,type='text',value='',placeholder='',error='',prefix='',readonly=false,highlight=false,req=false,hint=''}) {
+  const borderC = error?'var(--red)':highlight?'var(--purple)':'var(--border2)';
+  const bgC = readonly?'var(--s1)':'var(--s2)';
+  const colorC = readonly?'var(--text3)':'var(--text)';
+  return `<div class="field-wrap">
+    ${label?`<div class="lbl">${esc(label)}${req?'<span style="color:var(--red);margin-left:2px">*</span>':''}${highlight?'<span style="color:var(--purple);margin-left:6px;font-weight:500;text-transform:none;font-size:9px">✓ auto-filled</span>':''}${hint?`<span style="color:var(--text3);margin-left:4px;font-weight:400;text-transform:none;font-size:9px">(${hint})</span>`:''}</div>`:''}
+    <div class="${prefix?'prefix-wrap':''}">
+      ${prefix?`<span class="prefix-sym">${prefix}</span>`:''}
+      <input type="${type}" id="${id}" class="field-input${prefix?' prefix-input':''}${error?' error':''}${highlight?' highlight':''}"
+        value="${esc(value)}" placeholder="${esc(placeholder)}" ${readonly?'readonly':''} autocomplete="off"
+        style="border-color:${borderC};background:${bgC};color:${colorC};" />
+    </div>
+    ${error?`<div class="field-err">⚠ ${esc(error)}</div>`:''}
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  HOME SCREEN
+// ═══════════════════════════════════════════════════════════
+function renderHome() {
+  const {jobs,shops,filter,expanded,saving,search,theme,syncStatus} = STATE;
+
+  // Apply search filter
+  const sq = (search||'').toLowerCase().trim();
+  let filtered = filter==='All'?jobs:filter==='Cancelled'?jobs.filter(j=>jobStatus(j)==='Cancelled'):jobs.filter(j=>jobStatus(j)===filter);
+  if(sq) {
+    filtered = filtered.filter(j =>
+      j.customerName.toLowerCase().includes(sq) ||
+      (j.mobile||'').includes(sq) ||
+      j.phoneModel.toLowerCase().includes(sq) ||
+      j.jobNo.includes(sq) ||
+      j.issues.some(i=>i.desc.toLowerCase().includes(sq))
+    );
+  }
+  const activeTotal = jobs.filter(j=>!['Picked Up','Cancelled'].includes(jobStatus(j))).length;
+
+  // Sync dot color
+  const syncColors = {off:'var(--text3)',syncing:'var(--amber)',ok:'var(--green)',error:'var(--red)'};
+  const syncTitles = {off:'Cloud sync off',syncing:'Syncing…',ok:'Synced ✓',error:'Sync error'};
+
+  const header = `
+    <div class="header">
+      <div class="header-row">
+        <div>
+          <div class="header-title">🛠️ SERVICE TRACKER</div>
+          <div class="header-sub" style="display:flex;align-items:center;gap:6px;">
+            <span class="mono" style="font-weight:700;color:var(--green)">${activeTotal}</span> active &nbsp;·&nbsp; ${jobs.length} total
+            ${saving?'<span style="color:var(--amber)"> · saving…</span>':''}
+            ${syncStatus!=='off'?`<span class="sync-dot" style="background:${syncColors[syncStatus]}" title="${syncTitles[syncStatus]}"></span>`:''}
+          </div>
+        </div>
+        <div class="header-btns">
+          <a href="index.html" class="icon-btn" style="border-color:var(--border);color:var(--text3);background:var(--s2);text-decoration:none;" title="Home">🏠</a>
+          <button class="icon-btn" style="border-color:#2979FF44;color:var(--blue);background:${theme==='dark'?'#001030':'#E8F0FF'}" onclick="openReports()" title="Reports">📊</button>
+          <button class="icon-btn" style="border-color:#D500F944;color:var(--purple);background:${theme==='dark'?'#0F0022':'#F7EEFF'}" onclick="openCustomers()" title="Customers">👥</button>
+          <button class="icon-btn" style="border-color:#FFB30044;color:var(--amber);background:${theme==='dark'?'#1A1000':'#FFF8E1'}" onclick="openShops()" title="Shops">🏪</button>
+          <button class="icon-btn" style="border-color:var(--border);color:var(--text3);background:var(--s2)" onclick="openSettings()" title="Settings">⚙️</button>
+        </div>
+      </div>
+    </div>`;
+
+  const searchBar = `
+    <div class="main-search-wrap">
+      <div class="main-search-inner">
+        <span class="main-search-icon">🔍</span>
+        <input class="main-search-input" id="main_search" value="${esc(search||'')}"
+          placeholder="Search name, mobile, model, issue…"
+          oninput="setState({search:this.value})" autocomplete="off"/>
+        ${search?`<button class="main-search-clear" onclick="setState({search:''})">×</button>`:''}
+      </div>
+    </div>`;
+
+  const tabs = `
+    <div class="tabs" id="tabs-row">
+      ${TABS.map(tab=>{
+        const active=filter===tab;
+        const st=STATUS_CFG[tab];
+        const count=tabCount(jobs,tab);
+        const color=active&&tab!=='All'?st?.dot||'var(--text)':'var(--text)';
+        return `<button class="tab${active?' active':''}" onclick="setState({filter:'${tab}'})"
+          style="border-bottom-color:${active?color:'transparent'}">
+          ${tab}
+          ${count>0?`<span class="tab-badge" style="background:${active?'var(--text)':'var(--s3)'};color:${active?'var(--bg)':st?.dot||'var(--text2)'}">${count}</span>`:''}
+        </button>`;
+      }).join('')}
+    </div>`;
+
+  const searchResultNote = sq && filtered.length > 0 ? `
+    <div style="padding:6px 14px 2px;font-size:11px;color:var(--text3)">
+      ${filtered.length} result${filtered.length!==1?'s':''} for "<strong>${esc(sq)}</strong>"
+    </div>` : sq && filtered.length===0 ? '' : '';
+
+  const jobList = `
+    <div class="job-list">
+      ${filtered.length===0?`
+        <div class="empty-state fade-in">
+          <div style="font-size:40px;margin-bottom:10px">${sq?'🔍':'📋'}</div>
+          <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">${sq?`No results for "${esc(sq)}"`:'No jobs here'}</div>
+          <div style="font-size:13px">${sq?'Try a different search term':'Tap + to create a new job'}</div>
+        </div>`:
+        filtered.map(job=>renderJobCard(job,expanded,shops,jobs)).join('')}
+    </div>`;
+
+  return header+searchBar+tabs+searchResultNote+jobList;
+}
+
+function renderJobCard(job,expanded,shops,allJobs) {
+  const os=jobStatus(job), T=calcTotals(job), st=STATUS_CFG[os]||STATUS_CFG['Received'];
+  const isExp=expanded===job.id;
+  const norm=normMob(job.mobile);
+  const visits=norm?allJobs.filter(j=>normMob(j.mobile)===norm).length:0;
+  const hasActive=job.issues.some(i=>i.status!=='Cancelled'&&i.status!=='Picked Up');
+  const hasOut=job.issues.some(i=>i.serviceType==='outside'&&i.status!=='Cancelled');
+  const hasLock=job.lockType&&job.lockType!=='none';
+
+  const topCard = `
+    <div onclick="toggleExpand('${job.id}')" class="card-top">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap;">
+            <span class="mono" style="font-size:10px;font-weight:700;background:var(--s3);color:var(--text3);padding:2px 6px;border-radius:4px">#${job.jobNo}</span>
+            <span style="font-size:15px;font-weight:800;color:var(--text)">${esc(job.customerName)}</span>
+            ${visits>1?`<span style="font-size:9px;font-weight:700;background:#D500F922;color:var(--purple);padding:2px 6px;border-radius:9px">🔁×${visits}</span>`:''}
+            ${hasOut?`<span style="font-size:9px;font-weight:700;background:#FFB30022;color:var(--amber);padding:2px 6px;border-radius:9px">🏪</span>`:''}
+            ${hasLock?`<span style="font-size:9px;font-weight:700;background:#00E5FF22;color:var(--teal);padding:2px 6px;border-radius:9px">${LOCK_ICONS[job.lockType]||'🔒'}</span>`:''}
+          </div>
+          ${job.mobile?`<div class="mono" style="font-size:10px;color:var(--text3);margin-bottom:2px">${esc(job.mobile)}</div>`:''}
+          <div style="font-size:12px;color:var(--text2);margin-bottom:5px">${esc(job.phoneModel)}</div>
+          <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;">
+            ${chipHTML(os)}
+            <span style="font-size:10px;color:var(--text3)">${job.issues.length} issue${job.issues.length!==1?'s':''}</span>
+            <span class="mono" style="font-size:10px;color:var(--text3)">${fmtDate(job.jobDate||job.createdAt)}</span>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;margin-left:10px;">
+          ${T.charge>0?`<div class="mono" style="font-size:17px;font-weight:700;color:var(--sky)">${CUR}${fmt0(T.charge)}</div>`:''}
+          ${T.sDue>0?`<div class="mono" style="font-size:10px;color:var(--red);font-weight:700">−${CUR}${fmt0(T.sDue)}</div>`:''}
+          ${STATE.showProfit&&T.profit!==0?`<div class="mono" style="font-size:11px;color:${T.profit>=0?'var(--green)':'var(--red)'}">${T.profit>=0?'+':''}${CUR}${fmt0(T.profit)}</div>`:''}
+          <div style="font-size:12px;color:var(--text3);margin-top:6px">${isExp?'▲':'▼'}</div>
+        </div>
+      </div>
+    </div>`;
+
+  let expandedHTML = '';
+  if(isExp) {
+    // Lock info
+    const lockInfo = hasLock ? `
+      <div class="lock-badge">
+        <span style="font-size:16px">${LOCK_ICONS[job.lockType]||'🔒'}</span>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--teal)">${job.lockType.charAt(0).toUpperCase()+job.lockType.slice(1)} Lock</div>
+          ${job.phoneLock?`<div class="mono" style="font-size:13px;color:var(--text);margin-top:2px">${esc(job.phoneLock)}</div>`:''}
+        </div>
+      </div>` : '';
+
+    // Notes
+    const notesInfo = job.notes ? `
+      <div style="background:var(--s2);border-radius:8px;padding:9px 11px;margin-bottom:8px;border:1px solid var(--border);font-size:12px;color:var(--text2);line-height:1.5;">
+        📝 ${esc(job.notes)}
+      </div>` : '';
+
+    // Cust history btn
+    const histBtn = job.mobile&&normMob(job.mobile).length>=7 ? `
+      <button onclick="openCustHistory('${esc(normMob(job.mobile))}','${esc(job.customerName)}')"
+        class="btn full teal-v" style="margin-bottom:7px;font-size:12px;">
+        👤 Customer History ${visits>1?`(${visits} visits)`:'(1st visit)'}
+      </button>` : '';
+
+    // Set all status btn
+    const setAllBtn = hasActive ? `
+      <button onclick="openStatusPicker('${job.id}',null)"
+        class="btn full blue-v" style="margin-bottom:10px;font-size:12px;">
+        ⚡ Set All Issues Status
+      </button>` : '';
+
+    // Issues
+    const issueCards = job.issues.map((iss,idx)=>{
+      const isCan=iss.status==='Cancelled', isDone=iss.status==='Picked Up';
+      const isLast=FLOW.indexOf(iss.status)===FLOW.length-1;
+      const im=STATUS_CFG[iss.status]||STATUS_CFG['Received'];
+      const profit=(iss.charge??0)-(iss.partsCost??0)-(iss.servicerCharge??0);
+      const shop=iss.serviceType==='outside'?shops.find(s=>s.id===iss.shopId):null;
+      const sDue=(iss.shopTotal??0)-(iss.shopPaid??0);
+      const nextStatus=FLOW[FLOW.indexOf(iss.status)+1];
+
+      const shopDueEditor = iss.serviceType==='outside'&&!isCan ? `
+        <div class="shop-due-wrap">
+          <div style="font-size:10px;font-weight:700;color:var(--amber);margin-bottom:5px">🏪 ${esc(shop?.name||'Outside')}</div>
+          <div style="display:flex;gap:12px;font-family:var(--mono);font-size:11px;margin-bottom:${sDue>0?7:0}px;">
+            <span style="color:var(--amber)">Total ${CUR}${fmt0(iss.shopTotal||0)}</span>
+            <span style="color:var(--green)">Paid ${CUR}${fmt0(iss.shopPaid||0)}</span>
+            <span style="color:${sDue>0?'var(--red)':'var(--text3)'}">Due ${CUR}${fmt0(sDue)}</span>
+          </div>
+          ${sDue>0?`<div style="display:flex;gap:7px;align-items:center;">
+            <input type="number" id="p_${iss.id}" value="${iss.shopPaid||0}"
+              style="flex:1;background:var(--s3);border:1px solid var(--border2);color:var(--text);font-size:13px;padding:6px 9px;border-radius:6px;outline:none;font-family:var(--mono);" />
+            <button class="btn sm primary" onclick="updateShopPay('${job.id}','${iss.id}',document.getElementById('p_${iss.id}').value)">Save</button>
+          </div>`:''}
+        </div>` : '';
+
+      const actionBtns = isCan ?
+        `<button class="btn full sm teal-v" onclick="openStatusPicker('${job.id}','${iss.id}')">🔄 Reopen</button>` :
+        isDone ?
+        `<div style="flex:1;text-align:center;font-size:11px;color:var(--green);font-weight:700;padding:6px;">✓ Completed</div>` :
+        `<div style="display:flex;gap:6px;">
+          ${!isLast?`<button class="btn full sm primary" onclick="advanceIssue('${job.id}','${iss.id}')">→ ${nextStatus}</button>`:''}
+          <button class="btn sm outline" onclick="openStatusPicker('${job.id}','${iss.id}')">Set</button>
+          <button class="btn sm danger" onclick="confirmCancelIssue('${job.id}','${iss.id}','${esc(iss.desc)}')">✕</button>
+        </div>`;
+
+      return `
+        <div class="issue-card" style="background:${isCan?'#0A0000':'var(--s2)'};border-left-color:${im.dot};">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;">
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:700;color:${isCan?'var(--text3)':'var(--text)'};text-decoration:${isCan?'line-through':'none'};margin-bottom:4px;">
+                <span class="mono" style="font-size:10px;color:var(--text3);margin-right:5px">#${idx+1}</span>${esc(iss.desc)}
+              </div>
+              <div style="display:flex;gap:7px;flex-wrap:wrap;font-size:10px;">
+                ${iss.serviceType==='outside'?`<span style="background:#FFB30022;color:var(--amber);padding:2px 6px;border-radius:4px;font-weight:700">🏪 ${esc(shop?.name||'Outside')}</span>`:`<span style="background:#00E67622;color:var(--greenD);padding:2px 6px;border-radius:4px;font-weight:700">🔧 Self</span>`}
+                ${!isCan&&iss.partsCost!=null?`<span class="mono" style="color:var(--text2)">Parts ${CUR}${fmt0(iss.partsCost)}</span>`:''}
+                ${!isCan&&iss.servicerCharge!=null&&iss.servicerCharge>0?`<span class="mono" style="color:var(--purple)">Svc ${CUR}${fmt0(iss.servicerCharge)}</span>`:''}
+                ${!isCan&&iss.charge!=null?`<span class="mono" style="color:var(--sky)">Chg ${CUR}${fmt0(iss.charge)}</span>`:''}
+                ${STATE.showProfit&&!isCan&&iss.charge!=null?`<span class="mono" style="color:${profit>=0?'var(--green)':'var(--red)'}">Pft ${CUR}${fmt0(profit)}</span>`:''}
+              </div>
+            </div>
+            <span style="font-size:9px;font-weight:700;background:${im.bg};color:${im.text};padding:3px 7px;border-radius:9px;flex-shrink:0;margin-left:7px">${iss.status}</span>
+          </div>
+          ${!isCan?trackHTML(iss.status):''}
+          ${shopDueEditor}
+          <div style="margin-top:8px">${actionBtns}</div>
+        </div>`;
+    }).join('');
+
+    // Totals
+    let totalsHTML = '';
+    if(T.parts>0||T.charge>0||T.servicer>0) {
+      const cols = [
+        {l:'Parts',    v:T.parts,   c:'var(--text2)'},
+        ...(T.servicer>0?[{l:'Servicer', v:T.servicer, c:'var(--purple)'}]:[]),
+        {l:'Charged',  v:T.charge,  c:'var(--sky)'},
+        ...(STATE.showProfit?[{l:'Profit', v:T.profit, c:T.profit>=0?'var(--green)':'var(--red)'}]:[]),
+      ];
+      totalsHTML = `
+        <div style="background:var(--s2);border-radius:8px;border:1px solid var(--border);padding:10px 12px;margin-bottom:9px;">
+          <div style="display:grid;grid-template-columns:${cols.map(()=>'1fr').join(' ')};gap:7px;">
+            ${cols.map(x=>`
+            <div class="total-cell"><div class="total-label">${x.l}</div><div class="total-val" style="color:${x.c}">${CUR}${fmt0(x.v)}</div></div>`).join('')}
+          </div>
+          ${T.sTotal>0?`<div class="divider"></div>
+          <div class="totals-grid">
+            ${[{l:'Shop Ttl',v:T.sTotal,c:'var(--amber)'},{l:'Shop Paid',v:T.sPaid,c:'var(--green)'},{l:'Shop Due',v:T.sDue,c:T.sDue>0?'var(--red)':'var(--text3)'}].map(x=>`
+            <div class="total-cell"><div class="total-label">${x.l}</div><div class="total-val" style="font-size:12px;color:${x.c}">${CUR}${fmt0(x.v)}</div></div>`).join('')}
+          </div>` : ''}
+        </div>`;
+    }
+
+    // Bottom action row
+    const bottomBtns = `
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn sm outline" onclick="openEditJob('${job.id}')" style="flex:1">✏️ Edit</button>
+        <button class="btn sm blue-v" onclick="printReceipt('${job.id}')" title="Print Receipt">🖨️</button>
+        ${hasActive?`<button class="btn danger" onclick="confirmCancelJob('${job.id}','${esc(job.customerName)}')">✕ Cancel All</button>`:''}
+        <button class="btn danger" onclick="confirmDeleteJob('${job.id}','${job.jobNo}','${esc(job.customerName)}')">🗑</button>
+      </div>`;
+
+    expandedHTML = `
+      <div class="card-expanded fade-in">
+        ${lockInfo}${notesInfo}${histBtn}${setAllBtn}${issueCards}${totalsHTML}${bottomBtns}
+      </div>`;
+  }
+
+  return `
+    <div class="job-card${os==='Cancelled'?' cancelled':''} fade-in" id="job_${job.id}">
+      <div class="status-band" style="background:${st.dot}"></div>
+      ${topCard}${expandedHTML}
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  MODALS
+// ═══════════════════════════════════════════════════════════
+function renderModal() {
+  const {modal} = STATE;
+  if(!modal) return '';
+  switch(modal.type) {
+    case 'addJob':    return renderAddJobModal(modal);
+    case 'reports':   return renderReportsModal();
+    case 'customers': return renderCustomersModal();
+    case 'shops':     return renderShopsModal();
+    case 'shopLedger':return renderShopLedgerModal(modal.shop);
+    case 'backup':    return renderBackupModal();
+    case 'settings':  return renderSettingsModal();
+    case 'custHist':  return renderCustHistoryModal(modal.mobile,modal.name);
+    case 'confirm':   return renderConfirmModal(modal);
+    case 'statusPick':return renderStatusPickerModal(modal);
+  }
+  return '';
+}
+
+// ─── ADD/EDIT JOB MODAL ────────────────────────────────────
+function renderAddJobModal(modal) {
+  const {form,errs,returnCustomer,editId} = modal;
+  const shops = STATE.shops;
+  const title = editId ? 'Edit Job' : 'New Service Job';
+
+  // Lock types
+  const lockTypes = [{v:'none',l:'None'},{v:'pin',l:'PIN'},{v:'pattern',l:'Pattern'},{v:'fingerprint',l:'Fingerprint'},{v:'face',l:'Face ID'},{v:'other',l:'Other'}];
+  const lockTypeHTML = lockTypes.map(o=>`
+    <button onclick="formSetLock('${o.v}')" style="padding:7px 12px;border-radius:7px;
+      border:1px solid ${form.lockType===o.v?'var(--teal)':'var(--border2)'};
+      background:${form.lockType===o.v?'#001A1A':'transparent'};
+      color:${form.lockType===o.v?'var(--teal)':'var(--text3)'};
+      font-size:12px;font-weight:700;font-family:var(--font);">
+      ${LOCK_ICONS[o.v]} ${o.l}
+    </button>`).join('');
+
+  // Issues
+  const issueHTML = form.issues.map((iss,idx)=>{
+    const outsideShopPicker = iss.serviceType==='outside' ? `
+      <div style="margin-bottom:12px;">
+        <div class="lbl">Shop</div>
+        ${shops.length===0?`<div style="font-size:12px;color:var(--red);background:#1A0008;border-radius:7px;padding:8px 12px;">⚠ No shops added yet. Add shops from 🏪 Shops.</div>`
+        :shops.map(s=>`
+          <button onclick="formSetIssueShop(${idx},'${s.id}')" style="width:100%;margin-bottom:6px;padding:10px 12px;
+            border:1px solid ${iss.shopId===s.id?'var(--amber)':'var(--border2)'};border-radius:8px;
+            background:${iss.shopId===s.id?'#1A1000':'transparent'};
+            color:${iss.shopId===s.id?'var(--amber)':'var(--text3)'};
+            font-size:13px;font-weight:700;text-align:left;font-family:var(--font);">
+            🏪 ${esc(s.name)}
+          </button>`).join('')}
+        ${errs?.[`sh${idx}`]?`<div class="field-err">⚠ ${errs[`sh${idx}`]}</div>`:''}
+        ${iss.shopId?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+          ${fieldHTML({label:'Shop Total',id:`iss_shopTotal_${idx}`,type:'number',value:iss.shopTotal??'',placeholder:'0.00',prefix:CUR})}
+          ${fieldHTML({label:'Paid So Far',id:`iss_shopPaid_${idx}`,type:'number',value:iss.shopPaid??'',placeholder:'0.00',prefix:CUR})}
+        </div>` : ''}
+      </div>` : '';
+
+    const profitPreview = STATE.showProfit&&iss.charge!==''&&iss.charge!=null&&!isNaN(+iss.charge) ?
+      (()=>{
+        const p = +iss.partsCost||0;
+        const s = +iss.servicerCharge||0;
+        const c = +iss.charge||0;
+        const pft = c - p - s;
+        return `<div class="mono" style="font-size:12px;font-weight:700;text-align:right;color:${pft>=0?'var(--green)':'var(--red)'}">
+          Profit: ${CUR}${pft.toFixed(2)}
+          <span style="font-size:10px;font-weight:400;color:var(--text3);margin-left:4px;">(${CUR}${c.toFixed(0)} − ${CUR}${p.toFixed(0)}${s>0?` − ${CUR}${s.toFixed(0)}`:''} )</span>
+        </div>`;
+      })() : '';
+
+    return `
+      <div style="background:var(--s2);border-radius:10px;border:1px solid var(--border);padding:13px;margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <span class="mono" style="font-size:11px;color:var(--text3)">Issue #${idx+1}</span>
+          ${form.issues.length>1?`<button class="btn sm danger" onclick="formRemoveIssue(${idx})">Remove</button>`:''}
+        </div>
+        ${fieldHTML({label:'Description',id:`iss_desc_${idx}`,value:iss.desc,placeholder:'e.g. Screen cracked',req:true,error:errs?.[`d${idx}`]})}
+        <div style="margin-bottom:12px;">
+          <div class="lbl">Service Type</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <button onclick="formSetServiceType(${idx},'self')" style="padding:10px;border:1px solid ${iss.serviceType==='self'?'var(--green)':'var(--border2)'};border-radius:8px;background:${iss.serviceType==='self'?'#001A08':'transparent'};color:${iss.serviceType==='self'?'var(--green)':'var(--text3)'};font-size:12px;font-weight:700;font-family:var(--font);">🔧 Self Service</button>
+            <button onclick="formSetServiceType(${idx},'outside')" style="padding:10px;border:1px solid ${iss.serviceType==='outside'?'var(--amber)':'var(--border2)'};border-radius:8px;background:${iss.serviceType==='outside'?'#1A1000':'transparent'};color:${iss.serviceType==='outside'?'var(--amber)':'var(--text3)'};font-size:12px;font-weight:700;font-family:var(--font);">🏪 Outside Shop</button>
+          </div>
+        </div>
+        ${outsideShopPicker}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          ${fieldHTML({label:'Parts Cost',id:`iss_parts_${idx}`,type:'number',value:iss.partsCost??'',placeholder:'0.00',prefix:CUR})}
+          ${fieldHTML({label:'Customer Charge',id:`iss_charge_${idx}`,type:'number',value:iss.charge??'',placeholder:'0.00',prefix:CUR})}
+        </div>
+        ${iss.serviceType==='self'?`<div style="margin-top:-4px;">${fieldHTML({label:'Servicer Charge',id:`iss_servicer_${idx}`,type:'number',value:iss.servicerCharge??'',placeholder:'0.00 (optional)',prefix:CUR,hint:'paid to technician'})}</div>`:''}
+        ${profitPreview}
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="overlay" onclick="if(event.target===this)closeModal()">
+      <div class="sheet full slide-up">
+        <div class="sheet-head">
+          <div><div class="sheet-title">${title}</div></div>
+          <button class="close-btn" onclick="closeModal()">✕</button>
+        </div>
+        <div style="padding:14px 16px 40px;">
+          <!-- Mobile -->
+          <div class="field-wrap">
+            <div class="lbl">Mobile <span style="color:var(--text3);font-weight:400;text-transform:none;font-size:9px">(optional)</span></div>
+            <input type="tel" id="form_mobile" class="field-input${errs?.mob?' error':''}" value="${esc(form.mobile||'')}" placeholder="9876543210"
+              style="border-color:${returnCustomer?'var(--purple)':errs?.mob?'var(--red)':'var(--border2)'}"
+              oninput="handleMobileInput(this.value)" autocomplete="off"/>
+            ${errs?.mob?`<div class="field-err">⚠ ${errs.mob}</div>`:''}
+            ${returnCustomer?`
+              <div class="return-banner">
+                <div><div style="font-size:12px;font-weight:700;color:var(--purple)">🔁 Returning — ${esc(returnCustomer.name)}</div>
+                <div style="font-size:10px;color:var(--text3);margin-top:1px">${returnCustomer.count} visit${returnCustomer.count!==1?'s':''} · auto-filled</div></div>
+                <button class="btn sm purple-v" onclick="openCustHistoryInline()">History</button>
+              </div>` : ''}
+          </div>
+          ${fieldHTML({label:'Customer Name',id:'form_name',value:form.customerName,placeholder:'e.g. Ravi Kumar',req:true,error:errs?.name,highlight:!!returnCustomer&&!!form.customerName})}
+          ${fieldHTML({label:'Device / Model',id:'form_model',value:form.phoneModel,placeholder:'e.g. iPhone 13 / Samsung A54',req:true,error:errs?.model,highlight:!!returnCustomer&&!!form.phoneModel})}
+
+          <!-- Phone Lock -->
+          <div class="field-wrap">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
+              <div class="lbl" style="margin-bottom:0">Phone Lock / Passcode <span style="color:var(--text3);font-weight:400;text-transform:none;font-size:9px">(optional)</span></div>
+              <button onclick="toggleLockSection()" style="background:none;border:none;color:var(--sky);font-size:11px;font-weight:700;" id="lock_toggle_btn">${modal.showLock?'Hide ▲':'Add ▼'}</button>
+            </div>
+            <div id="lock_section" style="display:${modal.showLock?'block':'none'};">
+              <div style="background:var(--s2);border-radius:10px;border:1px solid var(--border2);padding:12px 13px;">
+                <div class="lbl">Lock Type</div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">${lockTypeHTML}</div>
+                ${form.lockType!=='none'&&form.lockType!=='fingerprint'&&form.lockType!=='face'?
+                  fieldHTML({label:form.lockType==='pattern'?'Pattern (describe)':'PIN / Password',id:'form_lock',value:form.phoneLock||'',placeholder:form.lockType==='pattern'?'e.g. Z-shape':'e.g. 1234'}) : ''}
+                ${(form.lockType==='fingerprint'||form.lockType==='face')?
+                  fieldHTML({label:'Backup PIN (if any)',id:'form_lock',value:form.phoneLock||'',placeholder:'Backup PIN if biometric fails'}) : ''}
+                <div style="font-size:10px;color:var(--text3);margin-top:2px;">⚠ Stored only for device testing. Handle with care.</div>
+              </div>
+            </div>
+            ${!modal.showLock&&form.lockType&&form.lockType!=='none'?
+              `<div style="font-size:12px;color:var(--teal);background:#001A1A;border-radius:7px;padding:6px 10px;border:1px solid #00E5FF33;">${LOCK_ICONS[form.lockType]} ${form.lockType.charAt(0).toUpperCase()+form.lockType.slice(1)} lock stored</div>` : ''}
+          </div>
+
+          <!-- Date -->
+          <div class="field-wrap">
+            <div class="lbl">Job Date <span style="color:var(--text3);font-weight:400;text-transform:none;font-size:9px">(optional)</span></div>
+            <input type="date" id="form_date" class="field-input" value="${esc(form.jobDate||'')}" />
+          </div>
+
+          <!-- Notes -->
+          <div class="field-wrap">
+            <div class="lbl">Notes <span style="color:var(--text3);font-weight:400;text-transform:none;font-size:9px">(optional)</span></div>
+            <textarea id="form_notes" class="field-input" rows="2" placeholder="Any additional notes…" style="resize:vertical;">${esc(form.notes||'')}</textarea>
+          </div>
+
+          <div class="divider-lbl">
+            <div class="divider-lbl-line"></div>
+            <span class="divider-lbl-text">Issues / Complaints</span>
+            <div class="divider-lbl-line"></div>
+          </div>
+
+          ${issueHTML}
+          <button onclick="formAddIssue()" style="width:100%;margin-bottom:14px;padding:10px;background:transparent;border:1px dashed var(--border2);border-radius:8px;color:var(--text3);font-size:13px;font-family:var(--font);">+ Add Another Issue</button>
+          <button class="btn full primary" onclick="submitForm()">Save Job</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ─── REPORTS MODAL ──────────────────────────────────────────
+function renderReportsModal() {
+  const tab = STATE.modal.tab||'summary';
+  const dateFrom = STATE.modal.dateFrom||'';
+  const dateTo   = STATE.modal.dateTo||'';
+  const R=buildReports(STATE.jobs, dateFrom, dateTo);
+
+  // Quick range helpers
+  const now = new Date();
+  const isoDate = d => d.toISOString().slice(0,10);
+  const thisMonthStart = isoDate(new Date(now.getFullYear(), now.getMonth(), 1));
+  const thisMonthEnd   = isoDate(new Date(now.getFullYear(), now.getMonth()+1, 0));
+  const lastMonthStart = isoDate(new Date(now.getFullYear(), now.getMonth()-1, 1));
+  const lastMonthEnd   = isoDate(new Date(now.getFullYear(), now.getMonth(), 0));
+  const thisYearStart  = isoDate(new Date(now.getFullYear(), 0, 1));
+
+  const rangeActive = dateFrom||dateTo;
+  const rangeLabel = rangeActive
+    ? `${dateFrom?fmtDate(new Date(dateFrom+'T12:00:00').toISOString()):'Start'} → ${dateTo?fmtDate(new Date(dateTo+'T12:00:00').toISOString()):'Now'}`
+    : 'All time';
+
+  const quickRanges = [
+    {l:'This Month',f:thisMonthStart,t:thisMonthEnd},
+    {l:'Last Month',f:lastMonthStart,t:lastMonthEnd},
+    {l:'This Year', f:thisYearStart, t:isoDate(now)},
+    {l:'All Time',  f:'',            t:''},
+  ];
+
+  const dateRangeSection = `
+    <div style="padding:10px 16px 0;border-bottom:1px solid var(--border);">
+      <div style="display:flex;gap:6px;margin-bottom:8px;overflow-x:auto;scrollbar-width:none;">
+        ${quickRanges.map(r=>`
+          <button onclick="setReportRange('${r.f}','${r.t}')" style="
+            white-space:nowrap;padding:5px 11px;border-radius:16px;font-size:11px;font-weight:700;
+            border:1px solid ${dateFrom===r.f&&dateTo===r.t?'var(--text)':'var(--border2)'};
+            background:${dateFrom===r.f&&dateTo===r.t?'var(--text)':'transparent'};
+            color:${dateFrom===r.f&&dateTo===r.t?'var(--bg)':'var(--text2)'};
+            font-family:var(--font);cursor:pointer;">${r.l}</button>`).join('')}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+        <div>
+          <div class="lbl" style="margin-bottom:4px">From</div>
+          <input type="date" class="field-input" value="${esc(dateFrom)}" onchange="setReportDateFrom(this.value)" style="padding:7px 10px;font-size:13px;"/>
+        </div>
+        <div>
+          <div class="lbl" style="margin-bottom:4px">To</div>
+          <input type="date" class="field-input" value="${esc(dateTo)}" onchange="setReportDateTo(this.value)" style="padding:7px 10px;font-size:13px;"/>
+        </div>
+      </div>
+      ${rangeActive?`<div style="font-size:11px;color:var(--teal);margin-bottom:8px;font-weight:600;">📅 Showing: ${rangeLabel} · ${R.jobCount} job${R.jobCount!==1?'s':''}</div>`:''}
+    </div>`;
+
+  let content='';
+  if(tab==='summary') {
+    content=`
+      <div style="display:grid;grid-template-columns:${STATE.showProfit?'1fr 1fr':'1fr'};gap:8px;margin-bottom:8px;">
+        ${[{l:'Total Charged',v:R.totalCharge,c:'var(--sky)'},...(STATE.showProfit?[{l:'Total Profit',v:R.totalProfit,c:R.totalProfit>=0?'var(--green)':'var(--red)'}]:[])].map(x=>`
+        <div style="background:var(--s2);border-radius:10px;border:1px solid var(--border);padding:12px 14px;">
+          <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">${x.l}</div>
+          <div class="mono" style="font-size:20px;font-weight:700;color:${x.c}">${CUR}${fmt2(x.v)}</div>
+        </div>`).join('')}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+        <div style="background:var(--s2);border-radius:10px;border:1px solid var(--border);padding:12px 14px;">
+          <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">Parts Cost</div>
+          <div class="mono" style="font-size:20px;font-weight:700;color:var(--text2)">${CUR}${fmt2(R.totalParts)}</div>
+        </div>
+        <div style="background:var(--s2);border-radius:10px;border:1px solid var(--border);padding:12px 14px;">
+          <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">Shop Due</div>
+          <div class="mono" style="font-size:20px;font-weight:700;color:${R.totalShopDue>0?'var(--red)':'var(--text3)'}">${CUR}${fmt2(R.totalShopDue)}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:3px">${R.totalShopDue>0?'Pending payment':'All cleared'}</div>
+        </div>
+      </div>
+      <div style="background:var(--s2);border-radius:10px;border:1px solid var(--border);padding:12px 14px;">
+        <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:10px">Jobs by Status</div>
+        ${FLOW.concat(['Cancelled']).map(s=>{
+          const n=STATE.jobs.filter(j=>jobStatus(j)===s).length;
+          const st=STATUS_CFG[s];
+          return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
+            <div style="display:flex;align-items:center;gap:8px;"><span style="width:7px;height:7px;border-radius:50%;background:${st.dot};display:inline-block;"></span><span style="font-size:13px;color:var(--text2)">${s}</span></div>
+            <span class="mono" style="font-size:13px;font-weight:700;color:${n>0?st.text:'var(--text3)'}">${n}</span>
+          </div>`;}).join('')}
+      </div>`;
+  } else if(tab==='byjob') {
+    content=R.byJob.length===0?`<div style="text-align:center;color:var(--text3);padding:40px 0">No job data for this period.</div>`:
+      R.byJob.map(job=>{const t=job._t; return `
+        <div style="background:var(--s2);border-radius:10px;border:1px solid var(--border);padding:12px 14px;margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+            <div>
+              <div style="display:flex;align-items:center;gap:7px;margin-bottom:2px;">
+                <span class="mono" style="font-size:10px;color:var(--text3);background:var(--s3);padding:2px 6px;border-radius:4px">#${job.jobNo}</span>
+                <span style="font-size:13px;font-weight:700;color:var(--text)">${esc(job.customerName)}</span>
+              </div>
+              <div style="font-size:11px;color:var(--text3)">${esc(job.phoneModel)} · ${fmtDate(job.jobDate||job.createdAt)}</div>
+            </div>
+            ${chipHTML(jobStatus(job))}
+          </div>
+          <div class="totals-grid">
+            ${[{l:'Parts',v:t.parts,c:'var(--text2)'},{l:'Charged',v:t.charge,c:'var(--sky)'},...(STATE.showProfit?[{l:'Profit',v:t.profit,c:t.profit>=0?'var(--green)':'var(--red)'}]:[])].map(x=>`
+            <div style="background:var(--s3);border-radius:7px;padding:7px 8px;text-align:center;">
+              <div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">${x.l}</div>
+              <div class="mono" style="font-size:13px;font-weight:700;color:${x.c}">${CUR}${fmt0(x.v)}</div>
+            </div>`).join('')}
+          </div>
+          ${t.sDue>0?`<div style="margin-top:6px;font-size:11px;color:var(--red);font-family:var(--mono);font-weight:700">Shop due: ${CUR}${fmt0(t.sDue)}</div>`:''}
+        </div>`}).join('');
+  } else {
+    content=R.allIssues.length===0?`<div style="text-align:center;color:var(--text3);padding:40px 0">No service data for this period.</div>`:
+      R.allIssues.map((iss,i)=>`
+        <div style="background:var(--s2);border-radius:10px;border:1px solid var(--border);padding:11px 13px;margin-bottom:7px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;">
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">${esc(iss.desc)}</div>
+              <div style="font-size:10px;color:var(--text3)"><span class="mono">#${iss.jobNo}</span> · ${esc(iss.customer)} · ${esc(iss.model)}</div>
+            </div>
+            <div style="display:flex;gap:5px;align-items:center;flex-shrink:0;margin-left:8px;">
+              ${iss.type==='outside'?`<span style="font-size:9px;background:#FFB30022;color:var(--amber);padding:2px 5px;border-radius:4px;font-weight:700">EXT</span>`:''}
+              ${chipHTML(iss.status)}
+            </div>
+          </div>
+          <div style="display:flex;gap:14px;font-family:var(--mono);font-size:12px;">
+            <span style="color:var(--text2)">Parts <span style="color:var(--text)">${CUR}${fmt0(iss.parts)}</span></span>
+            <span style="color:var(--text2)">Chg <span style="color:var(--sky)">${CUR}${fmt0(iss.charge)}</span></span>
+            ${STATE.showProfit?`<span style="color:var(--text2)">Pft <span style="color:${iss.profit>=0?'var(--green)':'var(--red)'}">${CUR}${fmt0(iss.profit)}</span></span>`:''}
+          </div>
+        </div>`).join('');
+  }
+
+  return `
+    <div class="overlay" onclick="if(event.target===this)closeModal()">
+      <div class="sheet full slide-up">
+        <div class="sheet-head">
+          <div><div class="sheet-title">📊 Reports</div><div style="font-size:11px;color:var(--text3);margin-top:2px">Totals & breakdown</div></div>
+          <button class="close-btn" onclick="closeModal()">✕</button>
+        </div>
+        <div style="display:flex;gap:6px;padding:12px 16px;border-bottom:1px solid var(--border);overflow-x:auto;">
+          ${[{k:'summary',l:'Summary'},{k:'byjob',l:'By Job'},{k:'byissue',l:'By Service'}].map(t=>`
+          <button class="r-tab${tab===t.k?' active':''}" onclick="setReportTab('${t.k}')">${t.l}</button>`).join('')}
+        </div>
+        ${dateRangeSection}
+        <div style="padding:14px 16px 40px;">${content}</div>
+      </div>
+    </div>`;
+}
+
+// ─── CUSTOMERS MODAL ────────────────────────────────────────
+function renderCustomersModal() {
+  const q = STATE.modal.q||'';
+  const all=buildCustomers(STATE.jobs);
+  const list=all.filter(c=>c.name.toLowerCase().includes(q.toLowerCase())||c.mobile.includes(q));
+  return `
+    <div class="overlay" onclick="if(event.target===this)closeModal()">
+      <div class="sheet full slide-up">
+        <div class="sheet-head">
+          <div><div class="sheet-title">👥 Customers</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${all.length} records</div></div>
+          <button class="close-btn" onclick="closeModal()">✕</button>
+        </div>
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);">
+          <div class="search-wrap"><span class="search-icon">🔍</span>
+          <input class="search-input" id="cust_search" value="${esc(q)}" placeholder="Search name or mobile…" oninput="updateCustomerSearch(this.value)" autocomplete="off"/></div>
+        </div>
+        <div style="padding:14px 16px 60px;">
+          ${list.length===0?`<div style="text-align:center;color:var(--text3);padding:50px 0;"><div style="font-size:36px;margin-bottom:8px">👤</div>No records.</div>`
+          :list.map((c,ci)=>{
+            const sp=c.jobs.reduce((a,j)=>a+calcTotals(j).charge,0);
+            const active=c.jobs.filter(j=>!['Picked Up','Cancelled'].includes(jobStatus(j))).length;
+            const last=c.jobs[0];
+            return `<div style="background:var(--s1);border-radius:12px;border:1px solid var(--border);padding:14px 16px;margin-bottom:8px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+                <div style="flex:1;">
+                  <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;">
+                    <span style="font-size:15px;font-weight:700;color:var(--text)">${esc(c.name)}</span>
+                    ${c.jobs.length>1?`<span style="font-size:9px;font-weight:700;background:#D500F922;color:var(--purple);padding:2px 6px;border-radius:20px">×${c.jobs.length}</span>`:''}
+                    ${active>0?`<span style="font-size:9px;font-weight:700;background:#00B0FF22;color:var(--sky);padding:2px 6px;border-radius:20px">${active} active</span>`:''}
+                  </div>
+                  ${c.mobile?`<div class="mono" style="font-size:11px;color:var(--text3);margin-bottom:2px">${esc(c.mobile)}</div>`:''}
+                  <div style="font-size:10px;color:var(--text3)">Last: ${fmtDate(last.jobDate||last.createdAt)} · ${esc(last.phoneModel)}</div>
+                </div>
+                <div style="text-align:right;"><div class="mono" style="font-size:15px;font-weight:700;color:var(--green)">${CUR}${fmt0(sp)}</div><div style="font-size:9px;color:var(--text3);margin-top:2px">total spent</div></div>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn full sm outline" onclick="openCustHistoryInModal('${esc(c.mobile)}','${esc(c.name)}')">History</button>
+                <button class="btn full sm primary" onclick="newJobFromCustomer('${esc(c.name)}','${esc(c.mobile)}','${esc(c.jobs[0]?.phoneModel||'')}')">+ New Job</button>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ─── SHOPS MODAL ────────────────────────────────────────────
+function renderShopsModal() {
+  const shops=STATE.shops;
+  return `
+    <div class="overlay" onclick="if(event.target===this)closeModal()">
+      <div class="sheet full slide-up">
+        <div class="sheet-head">
+          <div><div class="sheet-title">🏪 Outside Shops</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${shops.length} registered</div></div>
+          <button class="close-btn" onclick="closeModal()">✕</button>
+        </div>
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);">
+          <div style="display:flex;gap:8px;">
+            <input id="new_shop_name" class="field-input" placeholder="New shop name…" onkeydown="if(event.key==='Enter')addShop()" autocomplete="off"/>
+            <button class="btn primary" onclick="addShop()">Add</button>
+          </div>
+        </div>
+        <div style="padding:14px 16px 60px;">
+          ${shops.length===0?`<div style="text-align:center;color:var(--text3);padding:50px 0;"><div style="font-size:36px;margin-bottom:8px">🏪</div>No shops yet.</div>`
+          :shops.map(s=>{
+            const B=shopBalance(s,STATE.jobs);
+            return `<div style="background:var(--s1);border-radius:12px;border:1px solid var(--border);margin-bottom:10px;overflow:hidden;">
+              <div style="padding:14px 16px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                  <span style="font-size:15px;font-weight:700;color:var(--text)">🏪 ${esc(s.name)}</span>
+                  <div style="display:flex;gap:6px;">
+                    <button class="btn sm ghost" onclick="renameShop('${s.id}','${esc(s.name)}')">Edit</button>
+                    <button class="btn sm danger" onclick="confirmDeleteShop('${s.id}','${esc(s.name)}')">Del</button>
+                  </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:10px;">
+                  ${[{l:'Owed',v:B.owed,c:'var(--red)'},{l:'Paid',v:B.paid,c:'var(--green)'},{l:'Balance',v:B.balance,c:B.balance>0?'var(--red)':'var(--green)'}].map(x=>`
+                  <div style="background:var(--s3);border-radius:8px;padding:8px;text-align:center;">
+                    <div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:2px">${x.l}</div>
+                    <div class="mono" style="font-size:14px;font-weight:700;color:${x.c}">${CUR}${fmt0(x.v)}</div>
+                  </div>`).join('')}
+                </div>
+                <button onclick="openShopLedger('${s.id}')" style="width:100%;padding:9px;background:var(--s3);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:12px;font-weight:600;font-family:var(--font);">Ledger & Payments →</button>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ─── SHOP LEDGER MODAL ──────────────────────────────────────
+function renderShopLedgerModal(shop) {
+  if(!shop) return '';
+  const L=shopBalance(shop,STATE.jobs);
+  const pmts=shop.payments||[];
+  const lines=[];
+  STATE.jobs.forEach(j=>j.issues.forEach(i=>{
+    if(i.shopId===shop.id&&i.serviceType==='outside'&&i.status!=='Cancelled')
+      lines.push({jobNo:j.jobNo,cust:j.customerName,desc:i.desc,total:i.shopTotal||0,paid:i.shopPaid||0,status:i.status});
+  }));
+
+  return `
+    <div class="overlay" onclick="if(event.target===this)setState({modal:{type:'shops'}})">
+      <div class="sheet full slide-up">
+        <div class="sheet-head">
+          <div><div class="sheet-title">${esc(shop.name)}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">Ledger</div></div>
+          <button class="close-btn" onclick="setState({modal:{type:'shops'}})">✕</button>
+        </div>
+        <div style="padding:14px 16px 40px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
+            ${[{l:'Owed',v:L.owed,c:'var(--red)'},{l:'Paid',v:L.paid,c:'var(--green)'},{l:'Balance',v:L.balance,c:L.balance>0?'var(--red)':'var(--green)'}].map(x=>`
+            <div style="background:var(--s2);border-radius:8px;padding:10px;text-align:center;border-top:2px solid ${x.c}">
+              <div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px">${x.l}</div>
+              <div class="mono" style="font-size:16px;font-weight:700;color:${x.c}">${CUR}${fmt0(x.v)}</div>
+            </div>`).join('')}
+          </div>
+
+          <div class="sec"><div class="sec-title">Opening Balance</div><div class="sec-sub">Pre-existing debt to this shop</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+              <input type="number" id="ledger_ob" class="field-input" value="${shop.openingBalance||0}" style="flex:1" placeholder="0"/>
+              <button class="btn primary" onclick="saveLedgerOB('${shop.id}')">Save</button>
+            </div>
+          </div>
+
+          <div class="sec"><div class="sec-title">Record Payment</div>
+            ${fieldHTML({label:'Amount',id:'ledger_pamt',type:'number',placeholder:'0.00',prefix:CUR})}
+            ${fieldHTML({label:'Note (optional)',id:'ledger_pnote',placeholder:'e.g. Cash paid'})}
+            <button class="btn full primary" onclick="addShopPayment('${shop.id}')">+ Add Payment</button>
+          </div>
+
+          ${pmts.length>0?`<div class="sec"><div class="sec-title">Payment History (${pmts.length})</div>
+            ${pmts.map(p=>`
+              <div style="border-bottom:1px solid var(--border);padding-bottom:11px;margin-bottom:11px;display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                  <div class="mono" style="font-size:16px;font-weight:700;color:var(--green)">${CUR}${fmt2(p.amount)}</div>
+                  <div style="font-size:10px;color:var(--text3);margin-top:1px">${esc(p.note||'Payment')} · ${fmtDate(p.date)}</div>
+                </div>
+                <button class="btn sm danger" onclick="deleteShopPayment('${shop.id}','${p.id}')">Del</button>
+              </div>`).join('')}
+          </div>`:''}
+
+          ${lines.length>0?`<div class="sec"><div class="sec-title">Job Charges</div>
+            ${lines.map((l,i)=>`
+              <div style="border-bottom:${i<lines.length-1?'1px solid var(--border)':'none'};padding-bottom:${i<lines.length-1?10:0}px;margin-bottom:${i<lines.length-1?10:0}px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+                  <span class="mono" style="font-size:12px;font-weight:700;color:var(--text)">#${l.jobNo} ${esc(l.cust)}</span>${chipHTML(l.status)}
+                </div>
+                <div style="font-size:11px;color:var(--text3);margin-bottom:4px">${esc(l.desc)}</div>
+                <div style="display:flex;gap:14px;font-family:var(--mono);font-size:12px;">
+                  <span style="color:var(--sky)">${CUR}${fmt0(l.total)}</span>
+                  <span style="color:var(--green)">Paid ${CUR}${fmt0(l.paid)}</span>
+                  <span style="color:${l.total-l.paid>0?'var(--red)':'var(--text3)'}">Due ${CUR}${fmt0(l.total-l.paid)}</span>
+                </div>
+              </div>`).join('')}
+          </div>`:''}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ─── BACKUP MODAL ───────────────────────────────────────────
+function renderBackupModal() {
+  return `
+    <div class="overlay" onclick="if(event.target===this)closeModal()">
+      <div class="sheet slide-up">
+        <div class="sheet-head">
+          <div><div class="sheet-title">💾 Backup & Restore</div></div>
+          <button class="close-btn" onclick="closeModal()">✕</button>
+        </div>
+        <div style="padding:14px 16px 40px;">
+          <div class="sec"><div class="sec-title">Export</div><div class="sec-sub">${STATE.jobs.length} jobs · ${STATE.shops.length} shops</div>
+            <button class="btn full blue-v" onclick="downloadBackup()">⬇ Download Backup</button>
+          </div>
+          <div class="sec"><div class="sec-title">Restore</div><div class="sec-sub">⚠ Replaces all current data</div>
+            <button class="btn full amber-v" onclick="document.getElementById('restore_file').click()">📁 Choose File</button>
+            <input type="file" id="restore_file" accept=".json" style="display:none" onchange="importBackup(this)"/>
+            <div id="restore_msg" style="margin-top:8px;font-size:12px;"></div>
+          </div>
+          <div class="sec" style="background:var(--s3);">
+            <div class="sec-title" style="color:var(--text3)">⚠ Data Storage</div>
+            <div style="font-size:12px;color:var(--text3);line-height:1.6;margin-top:6px;">All data is stored locally in your browser (localStorage). Use Backup regularly to prevent data loss. Data persists across sessions on the same device/browser.</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ─── CUSTOMER HISTORY MODAL ─────────────────────────────────
+function renderCustHistoryModal(mobile,name) {
+  const norm=normMob(mobile);
+  const hist=STATE.jobs.filter(j=>normMob(j.mobile)===norm&&norm!=='');
+  const spent=hist.reduce((a,j)=>a+calcTotals(j).charge,0);
+  return `
+    <div class="overlay" onclick="if(event.target===this)closeModal()">
+      <div class="sheet slide-up">
+        <div class="sheet-head">
+          <div><div class="sheet-title">${esc(name)}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">Customer History</div></div>
+          <button class="close-btn" onclick="closeModal()">✕</button>
+        </div>
+        <div style="padding:14px 16px 40px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+            ${[{l:'Visits',v:hist.length,c:'var(--sky)'},{l:'Total Spent',v:`${CUR}${fmt0(spent)}`,c:'var(--green)'}].map(x=>`
+            <div style="background:var(--s2);border-radius:10px;padding:12px;text-align:center;border-top:2px solid ${x.c}">
+              <div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">${x.l}</div>
+              <div class="mono" style="font-size:18px;font-weight:700;color:${x.c}">${x.v}</div>
+            </div>`).join('')}
+          </div>
+          ${hist.map(j=>{const st=jobStatus(j);const t=calcTotals(j);return`
+            <div style="background:var(--s2);border-radius:10px;border:1px solid var(--border);padding:12px 14px;margin-bottom:8px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                <div><span class="mono" style="font-size:12px;font-weight:700;color:var(--text)">#${j.jobNo} — ${esc(j.phoneModel)}</span><div style="font-size:10px;color:var(--text3);margin-top:1px">${fmtDate(j.jobDate||j.createdAt)}</div></div>
+                <div style="text-align:right;">${chipHTML(st)}${t.charge>0?`<div class="mono" style="font-size:13px;font-weight:700;color:var(--sky);margin-top:4px">${CUR}${fmt0(t.charge)}</div>`:''}</div>
+              </div>
+              ${j.issues.map(i=>`
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                  <span style="width:4px;height:4px;border-radius:50%;background:var(--text3);flex-shrink:0;display:inline-block;"></span>
+                  <span style="font-size:12px;color:${i.status==='Cancelled'?'var(--text3)':'var(--text2)'};text-decoration:${i.status==='Cancelled'?'line-through':'none'}">${esc(i.desc)}</span>
+                  ${i.serviceType==='outside'?`<span style="font-size:9px;background:#FFB30022;color:var(--amber);padding:1px 5px;border-radius:4px;font-weight:700">EXT</span>`:''}
+                  ${i.charge!=null?`<span class="mono" style="font-size:11px;color:var(--sky);margin-left:auto">${CUR}${fmt0(i.charge)}</span>`:''}
+                </div>`).join('')}
+            </div>`}).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ─── CONFIRM MODAL ──────────────────────────────────────────
+function renderConfirmModal(modal) {
+  return `
+    <div class="overlay center" style="z-index:600">
+      <div class="dialog slide-up">
+        <div style="font-size:16px;font-weight:800;color:${modal.danger?'var(--red)':'var(--text)'};margin-bottom:8px">${esc(modal.title)}</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:22px;line-height:1.6">${esc(modal.msg)}</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn full outline" onclick="closeModal()">Cancel</button>
+          <button class="btn full ${modal.danger?'danger':'primary'}" onclick="confirmAction()">${esc(modal.label)}</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ─── STATUS PICKER MODAL ────────────────────────────────────
+function renderStatusPickerModal(modal) {
+  return `
+    <div class="overlay center" style="z-index:600">
+      <div class="dialog slide-up" style="max-width:300px">
+        <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:4px">${esc(modal.title||'Set Status')}</div>
+        ${modal.note?`<div style="font-size:11px;color:var(--text3);margin-bottom:14px">${esc(modal.note)}</div>`:''}
+        <div style="margin-bottom:12px;">
+          ${FLOW.map(s=>{const st=STATUS_CFG[s];return`
+            <button class="status-pick-btn" onclick="pickStatus('${s}')"
+              style="background:${st.bg};border-color:${st.dot}33;color:${st.text}">
+              <span style="width:8px;height:8px;border-radius:50%;background:${st.dot};flex-shrink:0;display:inline-block;"></span>${s}
+            </button>`}).join('')}
+        </div>
+        <button class="btn full outline" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  MAIN RENDER
+// ═══════════════════════════════════════════════════════════
+function render() {
+  const app = document.getElementById('app');
+  const {screen,modal,toast} = STATE;
+  let html='';
+  if(screen==='home') {
+    html=`<div style="min-height:100vh;background:var(--bg);padding-bottom:90px;">${renderHome()}</div>`;
+  }
+  html += renderModal();
+  if(toast) html += `<div class="toast">${esc(toast)}</div>`;
+  html += `<button class="fab" onclick="openNewJob()">+</button>`;
+  app.innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  FORM STATE (separate from app state for live updates)
+// ═══════════════════════════════════════════════════════════
+function getFormData() {
+  const m=STATE.modal;
+  if(!m||m.type!=='addJob') return null;
+  const f={...m.form};
+  // collect live input values
+  const mobileEl=document.getElementById('form_mobile');
+  if(mobileEl) f.mobile=mobileEl.value;
+  const nameEl=document.getElementById('form_name');
+  if(nameEl) f.customerName=nameEl.value;
+  const modelEl=document.getElementById('form_model');
+  if(modelEl) f.phoneModel=modelEl.value;
+  const dateEl=document.getElementById('form_date');
+  if(dateEl) f.jobDate=dateEl.value;
+  const notesEl=document.getElementById('form_notes');
+  if(notesEl) f.notes=notesEl.value;
+  const lockEl=document.getElementById('form_lock');
+  if(lockEl) f.phoneLock=lockEl.value;
+  f.issues=f.issues.map((iss,idx)=>{
+    const descEl=document.getElementById(`iss_desc_${idx}`);
+    const partsEl=document.getElementById(`iss_parts_${idx}`);
+    const chargeEl=document.getElementById(`iss_charge_${idx}`);
+    const servicerEl=document.getElementById(`iss_servicer_${idx}`);
+    const shopTotalEl=document.getElementById(`iss_shopTotal_${idx}`);
+    const shopPaidEl=document.getElementById(`iss_shopPaid_${idx}`);
+    return {
+      ...iss,
+      desc:descEl?descEl.value:iss.desc,
+      partsCost:partsEl?partsEl.value:iss.partsCost,
+      charge:chargeEl?chargeEl.value:iss.charge,
+      servicerCharge:servicerEl?servicerEl.value:iss.servicerCharge,
+      shopTotal:shopTotalEl?shopTotalEl.value:iss.shopTotal,
+      shopPaid:shopPaidEl?shopPaidEl.value:iss.shopPaid,
+    };
+  });
+  return f;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  UI ACTION HANDLERS (called from onclick in HTML)
+// ═══════════════════════════════════════════════════════════
+function toggleExpand(id) {
+  setState({expanded: STATE.expanded===id?null:id});
+}
+function closeModal() { setState({modal:null}); }
+
+function openNewJob() {
+  setState({modal:{type:'addJob',form:{customerName:'',mobile:'',phoneModel:'',phoneLock:'',lockType:'none',jobDate:'',notes:'',issues:[{id:genId(),desc:'',partsCost:'',charge:'',serviceType:'self',shopId:'',shopTotal:'',shopPaid:''}]},errs:{},returnCustomer:null,showLock:false}});
+}
+function openEditJob(jid) {
+  const job=STATE.jobs.find(j=>j.id===jid);
+  if(!job) return;
+  const form={
+    customerName:job.customerName, mobile:job.mobile||'', phoneModel:job.phoneModel,
+    phoneLock:job.phoneLock||'', lockType:job.lockType||'none',
+    jobDate:job.jobDate?new Date(job.jobDate).toISOString().slice(0,10):'',
+    notes:job.notes||'',
+    issues:job.issues.map(i=>({...i,partsCost:i.partsCost??'',charge:i.charge??'',shopTotal:i.shopTotal??'',shopPaid:i.shopPaid??''}))
+  };
+  setState({modal:{type:'addJob',form,errs:{},returnCustomer:null,showLock:!!(job.lockType&&job.lockType!=='none'),editId:jid}});
+}
+function openReports() { setState({modal:{type:'reports',tab:'summary'}}); }
+function openCustomers() { setState({modal:{type:'customers',q:''}}); }
+function openShops() { setState({modal:{type:'shops'}}); }
+function openBackup() { setState({modal:{type:'backup'}}); }
+function openCustHistory(mobile,name) { setState({modal:{type:'custHist',mobile,name}}); }
+function openCustHistoryInModal() {
+  const m=STATE.modal;
+  if(m?.returnCustomer) openCustHistory(normMob(m.returnCustomer.mobile||m.form.mobile),m.returnCustomer.name);
+}
+function openCustHistoryInline() { openCustHistoryInModal(); }
+function openCustHistoryInModal2(mobile,name) { openCustHistory(mobile,name); }
+window.openCustHistoryInModal=openCustHistoryInModal;
+
+function openShopLedger(sid) {
+  const shop=STATE.shops.find(s=>s.id===sid);
+  if(shop) setState({modal:{type:'shopLedger',shop:{...shop}}});
+}
+function openStatusPicker(jid,iid) {
+  const job=STATE.jobs.find(j=>j.id===jid);
+  const iss=iid?job?.issues.find(i=>i.id===iid):null;
+  setState({modal:{type:'statusPick',jid,iid,title:iid?'Set Status':'Set All Issues Status',note:iss?`"${iss.desc}"`:null}});
+}
+
+function setReportTab(tab) { setState({modal:{...STATE.modal,tab}}); }
+function updateCustomerSearch(q) { setState({modal:{...STATE.modal,q}}); }
+
+// form handlers
+function handleMobileInput(val) {
+  const m=STATE.modal; if(!m||m.type!=='addJob') return;
+  const f=getFormData()||m.form;
+  f.mobile=val;
+  const n=normMob(val);
+  let returnCustomer=null;
+  if(n.length>=7) {
+    const matches=STATE.jobs.filter(j=>normMob(j.mobile)===n);
+    if(matches.length>0){
+      const l=matches[0];
+      if(!f.customerName) f.customerName=l.customerName;
+      if(!f.phoneModel) f.phoneModel=l.phoneModel;
+      returnCustomer={name:l.customerName,count:matches.length,mobile:val};
+    }
+  }
+  STATE.modal={...m,form:f,returnCustomer};
+  render();
+}
+function toggleLockSection() {
+  const m=STATE.modal; if(!m) return;
+  const f=getFormData()||m.form;
+  STATE.modal={...m,form:f,showLock:!m.showLock};
+  render();
+}
+function formSetLock(v) {
+  const m=STATE.modal; if(!m) return;
+  const f=getFormData()||m.form;
+  f.lockType=v;
+  STATE.modal={...m,form:f};
+  render();
+}
+function formSetServiceType(idx,v) {
+  const m=STATE.modal; if(!m) return;
+  const f=getFormData()||m.form;
+  f.issues[idx].serviceType=v;
+  STATE.modal={...m,form:f};
+  render();
+}
+function formSetIssueShop(idx,sid) {
+  const m=STATE.modal; if(!m) return;
+  const f=getFormData()||m.form;
+  f.issues[idx].shopId=sid;
+  STATE.modal={...m,form:f};
+  render();
+}
+function formAddIssue() {
+  const m=STATE.modal; if(!m) return;
+  const f=getFormData()||m.form;
+  f.issues.push({id:genId(),desc:'',partsCost:'',charge:'',serviceType:'self',shopId:'',shopTotal:'',shopPaid:''});
+  STATE.modal={...m,form:f};
+  render();
+}
+function formRemoveIssue(idx) {
+  const m=STATE.modal; if(!m) return;
+  const f=getFormData()||m.form;
+  f.issues=f.issues.filter((_,i)=>i!==idx);
+  STATE.modal={...m,form:f};
+  render();
+}
+function submitForm() {
+  const m=STATE.modal; if(!m) return;
+  const f=getFormData()||m.form;
+  // validate
+  const e={};
+  if(!f.customerName.trim()) e.name='Required';
+  if(!f.phoneModel.trim()) e.model='Required';
+  if(f.mobile&&normMob(f.mobile).length<7) e.mob='Invalid number';
+  f.issues.forEach((x,i)=>{
+    if(!x.desc.trim()) e[`d${i}`]='Required';
+    if(x.serviceType==='outside'&&!x.shopId) e[`sh${i}`]='Select a shop';
+  });
+  if(Object.keys(e).length){
+    STATE.modal={...m,form:f,errs:e}; render(); return;
+  }
+  if(m.editId) {
+    // Edit existing job
+    const jobs=STATE.jobs.map(j=>{
+      if(j.id!==m.editId) return j;
+      return {...j,
+        customerName:f.customerName.trim(), mobile:(f.mobile||'').trim(),
+        phoneModel:f.phoneModel.trim(), phoneLock:f.phoneLock||'',
+        lockType:f.lockType||'none', notes:f.notes||'',
+        updatedAt:new Date().toISOString(),
+        jobDate:f.jobDate?new Date(f.jobDate+'T09:00:00').toISOString():j.jobDate,
+        issues:j.issues.map((oi,idx)=>{
+          const ni=f.issues[idx]||oi;
+          return {...oi,desc:ni.desc.trim(),
+            partsCost:ni.partsCost!==''&&ni.partsCost!=null?+ni.partsCost:null,
+            charge:ni.charge!==''&&ni.charge!=null?+ni.charge:null,
+            servicerCharge:ni.servicerCharge!==''&&ni.servicerCharge!=null?+ni.servicerCharge:null,
+            serviceType:ni.serviceType||'self',
+            shopId:ni.serviceType==='outside'?ni.shopId:null,
+            shopTotal:ni.shopTotal!==''&&ni.shopTotal!=null?+ni.shopTotal:null,
+            shopPaid:ni.shopPaid!==''&&ni.shopPaid!=null?+ni.shopPaid:oi.shopPaid,
+          };
+        })
+      };
+    });
+    STATE.jobs=jobs; DB.saveJobs(jobs);
+    // Auto-record new shop payments if outside costs were added/changed
+    const editedJob = jobs.find(j=>j.id===m.editId);
+    if(editedJob) {
+      const {shops: newShops, changed} = autoAddShopPayments(editedJob, STATE.shops);
+      if(changed) { STATE.shops=newShops; DB.saveShops(newShops); }
+    }
+    const now=Date.now(); STATE._lastSaved=now; DB.saveLastSaved(now);
+    setState({modal:null});
+    showToast('✓ Job updated');
+    autoSync();
+  } else {
+    saveJob(f);
+  }
+}
+
+// confirm modal helpers
+let _confirmCb=null;
+function confirmAction() { if(_confirmCb){_confirmCb();_confirmCb=null;} }
+function confirmCancelIssue(jid,iid,desc) {
+  _confirmCb=()=>cancelIssue(jid,iid);
+  setState({modal:{type:'confirm',title:'Cancel service?',msg:`"${desc}" will be cancelled`,label:'Cancel',danger:true}});
+}
+function confirmCancelJob(jid,name) {
+  _confirmCb=()=>cancelJob(jid);
+  setState({modal:{type:'confirm',title:'Cancel all?',msg:`Cancel all active issues for ${name}?`,label:'Cancel All',danger:true}});
+}
+function confirmDeleteJob(jid,jobNo,name) {
+  _confirmCb=()=>deleteJob(jid);
+  setState({modal:{type:'confirm',title:'Delete job?',msg:`#${jobNo} "${name}" will be permanently deleted.`,label:'Delete',danger:true}});
+}
+function confirmDeleteShop(sid,name) {
+  _confirmCb=()=>{ const shops=STATE.shops.filter(s=>s.id!==sid); saveShops(shops); setState({modal:{type:'shops'}}); };
+  setState({modal:{type:'confirm',title:'Delete shop?',msg:`"${name}" will be removed.`,label:'Delete',danger:true}});
+}
+
+function pickStatus(s) {
+  const m=STATE.modal;
+  if(!m||m.type!=='statusPick') return;
+  if(m.iid) setIssueSt(m.jid,m.iid,s);
+  else setAllSt(m.jid,s);
+}
+
+// shop actions
+function addShop() {
+  const el=document.getElementById('new_shop_name');
+  if(!el||!el.value.trim()) return;
+  const shops=[...STATE.shops,{id:genId(),name:el.value.trim(),openingBalance:0,payments:[]}];
+  saveShops(shops);
+  setState({modal:{type:'shops'}});
+}
+function renameShop(sid,oldName) {
+  const n=prompt('Shop name:',oldName);
+  if(n&&n.trim()&&n.trim()!==oldName) {
+    const shops=STATE.shops.map(s=>s.id===sid?{...s,name:n.trim()}:s);
+    saveShops(shops);
+    setState({modal:{type:'shops'}});
+  }
+}
+function saveLedgerOB(sid) {
+  const el=document.getElementById('ledger_ob');
+  if(!el) return;
+  const ob=parseFloat(el.value)||0;
+  const shops=STATE.shops.map(s=>s.id===sid?{...s,openingBalance:ob}:s);
+  saveShops(shops);
+  const shop=shops.find(s=>s.id===sid);
+  setState({modal:{type:'shopLedger',shop:{...shop}}});
+  showToast('✓ Opening balance saved');
+}
+function addShopPayment(sid) {
+  const aEl=document.getElementById('ledger_pamt');
+  const nEl=document.getElementById('ledger_pnote');
+  if(!aEl) return;
+  const a=parseFloat(aEl.value);
+  if(!a||isNaN(a)) return;
+  const p={id:genId(),amount:a,note:(nEl?.value||'').trim()||'Payment',date:new Date().toISOString()};
+  const shops=STATE.shops.map(s=>s.id===sid?{...s,payments:[p,...(s.payments||[])]}:s);
+  saveShops(shops);
+  const shop=shops.find(s=>s.id===sid);
+  setState({modal:{type:'shopLedger',shop:{...shop}}});
+  showToast('✓ Payment recorded');
+}
+function deleteShopPayment(sid,pid) {
+  const shops=STATE.shops.map(s=>s.id===sid?{...s,payments:(s.payments||[]).filter(p=>p.id!==pid)}:s);
+  saveShops(shops);
+  const shop=shops.find(s=>s.id===sid);
+  setState({modal:{type:'shopLedger',shop:{...shop}}});
+}
+
+// customers
+function newJobFromCustomer(name,mobile,model) {
+  setState({modal:{type:'addJob',form:{customerName:name,mobile:mobile,phoneModel:model,phoneLock:'',lockType:'none',jobDate:'',notes:'',issues:[{id:genId(),desc:'',partsCost:'',charge:'',serviceType:'self',shopId:'',shopTotal:'',shopPaid:''}]},errs:{},returnCustomer:{name,count:STATE.jobs.filter(j=>normMob(j.mobile)===normMob(mobile)).length,mobile},showLock:false}});
+}
+function openCustHistoryInModal2(mobile,name) { openCustHistory(mobile,name); }
+window.openCustHistoryInModal2=openCustHistoryInModal2;
+function openCustHistoryInModal3(mobile,name) { openCustHistory(mobile,name); }
+window.openCustHistoryInModal3=openCustHistoryInModal3;
+
+// Make cust history work from customers modal
+function openCustHistoryInModal(mobile,name) { openCustHistory(mobile,name); }
+window.openCustHistoryInModal=openCustHistoryInModal;
+
+// Fix: openCustHistoryInModal used in customers modal as well as from inline
+window.openCustHistoryInModal = (mobile,name) => openCustHistory(mobile,name);
+
+// backup
+function downloadBackup() {
+  const json=DB.exportJSON(STATE.jobs,STATE.shops);
+  const b=new Blob([json],{type:'application/json'});
+  const u=URL.createObjectURL(b);
+  const a=document.createElement('a'); a.href=u;
+  a.download=`svc-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(u);
+}
+function importBackup(input) {
+  const f=input.files[0]; if(!f) return;
+  const msg=document.getElementById('restore_msg');
+  const r=new FileReader();
+  r.onload=ev=>{
+    try {
+      const {jobs,shops}=DB.importJSON(ev.target.result);
+      STATE.jobs=jobs; STATE.shops=shops;
+      DB.saveJobs(jobs); DB.saveShops(shops);
+      if(msg) msg.innerHTML='<span style="color:var(--green);font-weight:700">✓ Restored successfully!</span>';
+      setTimeout(()=>setState({modal:null}),1200);
+    } catch(e){
+      if(msg) msg.innerHTML='<span style="color:var(--red)">⚠ Invalid backup file.</span>';
+    }
+  };
+  r.readAsText(f);
+}
+
+// ─── SETTINGS MODAL ─────────────────────────────────────────
+function renderSettingsModal() {
+  const {theme, firebaseConfig, syncStatus} = STATE;
+  const fb = firebaseConfig;
+  const syncColors = {off:'var(--text3)',syncing:'var(--amber)',ok:'var(--green)',error:'var(--red)'};
+  const syncLabels = {off:'Not connected',syncing:'Syncing…',ok:'Connected & synced ✓',error:'Sync error — check config'};
+  return `
+    <div class="overlay" onclick="if(event.target===this)closeModal()">
+      <div class="sheet slide-up">
+        <div class="sheet-head">
+          <div><div class="sheet-title">⚙️ Settings</div></div>
+          <button class="close-btn" onclick="closeModal()">✕</button>
+        </div>
+        <div style="padding:14px 16px 50px;">
+
+          <!-- Profit visibility -->
+          <div class="sec">
+            <div class="sec-title">Profit Visibility</div>
+            <div class="sec-sub">Show or hide profit figures everywhere</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0 2px;">
+              <div>
+                <div style="font-size:13px;color:var(--text);font-weight:600;">Show Profit</div>
+                <div style="font-size:11px;color:var(--text3);margin-top:2px;">Cards, issues &amp; reports</div>
+              </div>
+              <button onclick="toggleProfit()" style="width:48px;height:26px;border-radius:13px;border:none;cursor:pointer;background:\${STATE.showProfit?'var(--green)':'var(--border2)'};position:relative;transition:background .2s;flex-shrink:0;"><div style="position:absolute;top:3px;left:\${STATE.showProfit?'25px':'3px'};width:20px;height:20px;border-radius:50%;background:\${STATE.showProfit?'#000':'var(--text2)'};transition:left .2s;"></div></button>
+            </div>
+          </div>
+
+          <!-- Theme -->
+          <div class="sec">
+            <div class="sec-title">Appearance</div>
+            <div class="sec-sub">Choose your display theme</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <button onclick="setTheme('dark')" style="padding:14px 10px;border-radius:10px;
+                border:2px solid ${theme==='dark'?'var(--text)':'var(--border2)'};
+                background:${theme==='dark'?'var(--s3)':'var(--s2)'};
+                color:${theme==='dark'?'var(--text)':'var(--text3)'};
+                font-size:13px;font-weight:700;font-family:var(--font);cursor:pointer;">
+                🌑 Dark / AMOLED
+              </button>
+              <button onclick="setTheme('light')" style="padding:14px 10px;border-radius:10px;
+                border:2px solid ${theme==='light'?'var(--text)':'var(--border2)'};
+                background:${theme==='light'?'var(--s3)':'var(--s2)'};
+                color:${theme==='light'?'var(--text)':'var(--text3)'};
+                font-size:13px;font-weight:700;font-family:var(--font);cursor:pointer;">
+                ☀️ Light
+              </button>
+            </div>
+          </div>
+
+          <!-- Supabase Cloud Sync -->
+          <div class="sec">
+            <div class="sec-title">☁️ Cloud Sync</div>
+            <div class="sec-sub">Supabase · auto-connected</div>
+
+            <!-- Status bar -->
+            <div style="display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--s3);border-radius:8px;margin-bottom:12px;">
+              <span class="sync-dot" style="background:${syncColors[syncStatus]};width:8px;height:8px;"></span>
+              <span style="font-size:12px;color:var(--text2);font-weight:600;">${syncLabels[syncStatus]}</span>
+              ${syncStatus==='ok'||syncStatus==='error'?`<button class="btn sm ghost" onclick="triggerSync()" style="margin-left:auto;font-size:11px;">↻ Sync now</button>`:''}
+            </div>
+
+            <!-- Connected info -->
+            <div style="background:var(--s3);border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:var(--text2);">
+              <div style="font-weight:700;color:var(--text);margin-bottom:4px;">
+                ${fb && fb.url !== DEFAULT_SB.url ? '🔧 Custom endpoint' : '✓ Default endpoint'}
+              </div>
+              <div style="font-family:var(--mono);font-size:10px;color:var(--text3);word-break:break-all;">
+                ${esc((fb||DEFAULT_SB).url)}
+              </div>
+            </div>
+
+            <!-- Password-locked edit toggle -->
+            ${STATE._sbEditUnlocked ? `
+              <!-- Unlocked: show edit form -->
+              <div style="background:var(--s3);border-radius:8px;padding:11px 12px;margin-bottom:10px;border:1px solid var(--green)44;">
+                <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:10px;">🔓 Edit credentials</div>
+                ${fieldHTML({label:'Project URL',id:'sb_url',placeholder:'https://xxxx.supabase.co',value:(fb||DEFAULT_SB).url})}
+                ${fieldHTML({label:'Anon Key',id:'sb_key',placeholder:'eyJhbGci…',value:(fb||DEFAULT_SB).anonKey})}
+                <div style="display:flex;gap:8px;">
+                  <button class="btn full green-v" onclick="saveSupabaseCreds()">Save & Reconnect</button>
+                  <button class="btn outline" onclick="resetSupabaseCreds()" style="white-space:nowrap;">Reset to default</button>
+                </div>
+                <div id="sb_err" style="margin-top:8px;font-size:12px;color:var(--red);"></div>
+              </div>
+              <button class="btn full outline" onclick="lockSbEdit()" style="font-size:12px;">🔒 Lock</button>
+            ` : `
+              <!-- Locked: show password prompt -->
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="password" id="sb_pwd" class="field-input" placeholder="Enter password to edit…"
+                  onkeydown="if(event.key==='Enter')unlockSbEdit()"
+                  style="flex:1;padding:8px 12px;font-size:13px;"/>
+                <button class="btn outline" onclick="unlockSbEdit()" style="white-space:nowrap;padding:8px 14px;">🔓 Edit</button>
+              </div>
+              <div id="sb_pwd_err" style="margin-top:6px;font-size:11px;color:var(--red);"></div>
+            `}
+          </div>
+
+          <!-- Backup shortcut -->
+          <div class="sec">
+            <div class="sec-title">💾 Backup & Restore</div>
+            <div class="sec-sub">Export all data as JSON or restore from a backup</div>
+            <button class="btn full outline" onclick="closeModal();openBackup()">Open Backup Manager</button>
+          </div>
+
+        </div>
+      </div>
+    </div>`;
+}
+
+// ─── PRINT RECEIPT ──────────────────────────────────────────
+function printReceipt(jid) {
+  const job = STATE.jobs.find(j=>j.id===jid);
+  if(!job) return;
+  const T = calcTotals(job);
+  const shops = STATE.shops;
+  const line = (label, val, r=false) =>
+    `<div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+      <span style="color:#555">${label}</span>
+      <span style="font-weight:${r?700:400}">${val}</span>
+    </div>`;
+  const divider = `<div style="border-top:1px dashed #bbb;margin:10px 0;"></div>`;
+  const issueRows = job.issues.map((iss,i) => {
+    const shop = iss.serviceType==='outside' ? shops.find(s=>s.id===iss.shopId) : null;
+    const isCan = iss.status === 'Cancelled';
+    return `
+      <div style="margin-bottom:10px;${isCan?'opacity:.5;':''}">
+        <div style="font-weight:700;font-size:13px;">${i+1}. ${iss.desc}${isCan?' [CANCELLED]':''}</div>
+        <div style="font-size:11px;color:#555;margin:2px 0 4px;">${iss.serviceType==='outside'?`Outside: ${shop?.name||'External'}`:'Self service'} · ${iss.status}</div>
+        ${!isCan ? `
+          <div style="display:flex;gap:20px;font-size:12px;">
+            ${iss.partsCost!=null?`<span>Parts: ₹${fmt0(iss.partsCost)}</span>`:''}
+            ${iss.charge!=null?`<span>Charge: ₹${fmt0(iss.charge)}</span>`:''}
+          </div>` : ''}
+      </div>`;
+  }).join('');
+
+  const html = `
+    <div id="print-receipt" style="background:white;color:black;font-family:'Courier New',monospace;padding:24px;max-width:380px;font-size:13px;line-height:1.6;">
+      <div style="text-align:center;margin-bottom:16px;">
+        <div style="font-size:20px;font-weight:900;letter-spacing:1px;">🛠️ SERVICE RECEIPT</div>
+        <div style="font-size:11px;color:#777;margin-top:2px;">${new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})}</div>
+      </div>
+      <div style="border:1px solid #ddd;border-radius:6px;padding:12px;margin-bottom:12px;">
+        ${line('Job No.', '#' + job.jobNo, true)}
+        ${line('Customer', job.customerName, true)}
+        ${line('Mobile', job.mobile || '—')}
+        ${line('Device', job.phoneModel)}
+        ${line('Date', fmtDate(job.jobDate||job.createdAt))}
+        ${job.notes ? line('Notes', job.notes) : ''}
+      </div>
+      <div style="font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:#555;margin-bottom:8px;">Services</div>
+      ${issueRows}
+      ${divider}
+      <div style="font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:#555;margin-bottom:8px;">Summary</div>
+      ${T.parts > 0 ? line('Parts Cost', '₹' + fmt0(T.parts)) : ''}
+      ${line('Total Charged', '₹' + fmt0(T.charge), true)}
+      ${T.profit !== 0 ? line('Profit', (T.profit>=0?'+':'') + '₹' + fmt0(T.profit)) : ''}
+      ${T.sDue > 0 ? `${divider}${line('Shop Due', '₹' + fmt0(T.sDue), true)}` : ''}
+      ${divider}
+      <div style="text-align:center;font-size:11px;color:#999;margin-top:8px;">Thank you for your business!</div>
+    </div>`;
+
+  // Inject hidden receipt and print
+  let el = document.getElementById('print-receipt-container');
+  if(el) el.remove();
+  const container = document.createElement('div');
+  container.id = 'print-receipt-container';
+  container.innerHTML = html;
+  container.style.display = 'none';
+  document.body.appendChild(container);
+  window.print();
+}
+
+// ─── NEW ACTION HANDLERS ─────────────────────────────────────
+function openSettings() { setState({modal:{type:'settings'}}); }
+function toggleProfit() {
+  const v = !STATE.showProfit;
+  STATE.showProfit = v; DB.saveShowProfit(v);
+  setState({modal:{type:'settings'}});
+  showToast(v ? '👁 Profit visible' : '🙈 Profit hidden');
+}
+
+function setTheme(t) {
+  STATE.theme = t; applyTheme(t);
+  setState({modal:{type:'settings'}});
+}
+
+function setReportRange(f, t) {
+  setState({modal:{...STATE.modal, dateFrom:f, dateTo:t}});
+}
+function setReportDateFrom(v) {
+  setState({modal:{...STATE.modal, dateFrom:v}});
+}
+function setReportDateTo(v) {
+  setState({modal:{...STATE.modal, dateTo:v}});
+}
+
+// ─── SUPABASE CREDENTIAL MANAGEMENT (password-protected) ────
+function unlockSbEdit() {
+  const pwdEl  = document.getElementById('sb_pwd');
+  const errEl  = document.getElementById('sb_pwd_err');
+  if(!pwdEl) return;
+  if(pwdEl.value === SYNC_PASSWORD) {
+    STATE._sbEditUnlocked = true;
+    setState({modal:{type:'settings'}});
+  } else {
+    if(errEl) { errEl.textContent = '⚠ Incorrect password.'; }
+    pwdEl.value = '';
+    pwdEl.focus();
+  }
+}
+function lockSbEdit() {
+  STATE._sbEditUnlocked = false;
+  setState({modal:{type:'settings'}});
+}
+function saveSupabaseCreds() {
+  const urlEl = document.getElementById('sb_url');
+  const keyEl = document.getElementById('sb_key');
+  const errEl = document.getElementById('sb_err');
+  const url     = (urlEl?.value||'').trim().replace(/\/$/, '');
+  const anonKey = (keyEl?.value||'').trim();
+  if(!url || !url.startsWith('https://')) {
+    if(errEl) errEl.textContent = '⚠ Enter a valid project URL.'; return;
+  }
+  if(!anonKey) {
+    if(errEl) errEl.textContent = '⚠ Enter the anon key.'; return;
+  }
+  const cfg = { url, anonKey };
+  SUPABASE.configure(cfg);
+  STATE.firebaseConfig     = cfg;
+  STATE._sbEditUnlocked    = false;
+  setState({modal:{type:'settings'}});
+  showToast('☁️ Credentials saved');
+  triggerSync();
+}
+function resetSupabaseCreds() {
+  SUPABASE.configure(DEFAULT_SB);
+  STATE.firebaseConfig  = DEFAULT_SB;
+  DB.saveFirebase(DEFAULT_SB);
+  STATE._sbEditUnlocked = false;
+  setState({modal:{type:'settings'}});
+  showToast('↩ Reset to default credentials');
+  triggerSync();
+}
+async function triggerSync() {
+  if(!STATE.firebaseConfig) return;
+  SUPABASE._cfg = STATE.firebaseConfig;
+  await SUPABASE.syncNow();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  HARDCODED SUPABASE CREDENTIALS
+//  Edit via Settings → Cloud Sync → Edit (password protected)
+// ═══════════════════════════════════════════════════════════
+const DEFAULT_SB = {
+  url:     'https://vjkxcpsjdxwqgdhxfjno.supabase.co',
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqa3hjcHNqZHh3cWdkaHhmam5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MzAwMjEsImV4cCI6MjA4OTMwNjAyMX0.yYpGwoXvSQdoorNJw2-mgBQ5W74cjA0E7PEURsAggTs',
+};
+const SYNC_PASSWORD = '1234'; // change this to your preferred password
+
+// ═══════════════════════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════════════════════
+(function init() {
+  const data = DB.load();
+  STATE.jobs       = data.jobs;
+  STATE.shops      = data.shops;
+  STATE.ctr        = data.ctr;
+  STATE.theme      = data.theme || localStorage.getItem('ira_theme') || 'light';
+  STATE.showProfit = data.showProfit === true;
+  STATE._lastSaved = data.lastSaved || 0;
+  applyTheme(STATE.theme);
+  // Use stored override if set, else fall back to hardcoded defaults
+  const cfg = data.firebaseConfig || DEFAULT_SB;
+  STATE.firebaseConfig = cfg;
+  SUPABASE.configure(cfg);
+  STATE.syncStatus = 'off';
+  setTimeout(triggerSync, 1200);
+  render();
+})();
+</script>
+<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}</script>
+</body>
+</html>
