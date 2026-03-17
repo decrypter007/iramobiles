@@ -1,0 +1,45 @@
+{
+  "name": "IRA Mobiles",
+  "short_name": "IRA",
+  "description": "Guard Hub, Service Tracker & Order Tracker for IRA Mobiles",
+  "start_url": "/iramobiles/index.html",
+  "scope": "/iramobiles/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F5F4F0",
+  "theme_color": "#009950",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Guard Hub",
+      "short_name": "Guard",
+      "url": "/iramobiles/guard-hub.html",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Service Tracker",
+      "short_name": "Service",
+      "url": "/iramobiles/service-tracker.html",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Order Tracker",
+      "short_name": "Orders",
+      "url": "/iramobiles/orders.html",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
